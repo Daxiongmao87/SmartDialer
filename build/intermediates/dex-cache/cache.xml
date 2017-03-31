@@ -3,21 +3,21 @@
 
     <item
         is-multidex="true"
-        jar="C:\Users\Daxiongmao87\StudioProjects\SmartDialer\app\build\intermediates\incremental-runtime-classes\debug\instant-run.jar"
+        jar="C:\Users\Omar\StudioProjects\SmartDialer\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="c5e5e904a761d8a49024bfc81e4ce4a37e6a574d">
+        <dex dex="C:\Users\Omar\StudioProjects\SmartDialer\app\build\intermediates\transforms\dex\debug\folders\1000\10000\instant-run-bootstrap_a44def7f7a858ab823cbb1d4447d4557064a142a\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Omar\StudioProjects\SmartDialer\app\build\intermediates\incremental-runtime-classes\debug\instant-run.jar"
         jumboMode="true"
         optimize="true"
         revision="25.0.2"
         sha1="c82741bc129dd5f99f11a4ab8666ae24262053b6">
-        <dex dex="C:\Users\Daxiongmao87\StudioProjects\SmartDialer\app\build\intermediates\transforms\dex\debug\folders\1000\10000\instant-run_ea425b4efad4cf2dd379fe6354ca04515d1e4700\classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
-        jar="C:\Users\Daxiongmao87\StudioProjects\SmartDialer\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="2e0bc1cd184b9c62cd74fe9fdc0afe624aed475f">
-        <dex dex="C:\Users\Daxiongmao87\StudioProjects\SmartDialer\app\build\intermediates\transforms\dex\debug\folders\1000\10000\instant-run-bootstrap_a80423b61f4540341f9575f93269435dd3cfa528\classes.dex" />
+        <dex dex="C:\Users\Omar\StudioProjects\SmartDialer\app\build\intermediates\transforms\dex\debug\folders\1000\10000\instant-run_541b8a1e7cac28d8cc590e52545ae27074ad853f\classes.dex" />
     </item>
 
 </items>
