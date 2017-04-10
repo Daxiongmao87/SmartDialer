@@ -1,8 +1,5 @@
 <resources>
-    <string name="app_name">Smart Dialer</string>
-    <string name="title_dialer">Dialer</string>
-    <string name="title_log">Call Log</string>
-    <string name="title_contacts">Contacts</string>
-    <string name="title_settings">Settings</string>
-
+    <string name="app_name">SmartDialer</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
 </resources>
