@@ -2,4 +2,8 @@
     <string name="app_name">SmartDialer</string>
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
+    <string name="pref_lookup">Number Lookup</string>
+    <string name="pref_lookup_summ">Enable reverse lookup functionality</string>
+    <string name="pref_dark">Dark Theme</string>
+    <string name="pref_dark_summ">Enable Dark Theme</string>
 </resources>
