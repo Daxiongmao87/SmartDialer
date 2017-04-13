@@ -1,6 +1,7 @@
 package com.bitjunkie.smartdialer;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -13,6 +14,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +22,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.TextView;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,17 +36,18 @@ public class MainActivity extends AppCompatActivity {
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
-
     /**
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
 
+    private Context context;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        context = this.context;
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the three
@@ -91,13 +96,15 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
+    public boolean buttonClickEvent(View v) {
+        Log.d("Debug","test1");
+       return true;
+    }
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -105,19 +112,19 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(int position) {
             //Returning the current tabs
-            switch (position) {
-                case 0:
-                    Tab1Dialer tab1 = new Tab1Dialer();
-                    return tab1;
-                case 1:
-                    Tab2Log tab2 = new Tab2Log();
-                    return tab2;
-                case 2:
-                    Tab3Contacts tab3 = new Tab3Contacts();
-                    return tab3;
-                default:
-                    return null;
-            }
+           switch(position) {
+               case 0:
+
+                   Fragment frag = new Tab1Dialer();
+                   return frag;
+               case 1:
+                   frag = new Tab2Log();
+                   return frag;
+               default:
+                   frag = new Tab3Contacts();
+                   return frag;
+
+           }
         }
 
         @Override
