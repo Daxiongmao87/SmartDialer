@@ -3,15 +3,6 @@
 
     <item
         is-multidex="true"
-        jar="C:\Users\Patrick\.android\build-cache\3f03543a072b644063a48689c591d038fffb3e5b\output\jars\classes.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="95519720620b553f63afc789beba9ad582807f7c">
-        <dex dex="D:\Projects\Android\Projects\SmartDialer\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_88b6bef837598a7974c396ab627730696de9ab0f\classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
         jar="D:\Projects\Android\Projects\SmartDialer\app\build\intermediates\incremental-runtime-classes\debug\instant-run.jar"
         jumboMode="true"
         optimize="true"
@@ -21,119 +12,11 @@
     </item>
     <item
         is-multidex="true"
-        jar="C:\Users\Patrick\.android\build-cache\32a69615c88a36f986a5457ccab0660a067d4ae0\output\jars\classes.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="052f5f840f21174a3ecf6544130194e2652cbb73">
-        <dex dex="D:\Projects\Android\Projects\SmartDialer\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_570b9ca8078cb5771f72bd27fb5325ef8dfb9856\classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
-        jar="D:\Development\Android\Sdk\extras\android\m2repository\com\android\support\support-annotations\25.3.1\support-annotations-25.3.1.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="bf8841d29fa39e077730e7a91222c2ce269fa7c9">
-        <dex dex="D:\Projects\Android\Projects\SmartDialer\app\build\intermediates\transforms\dex\debug\folders\1000\10\support-annotations-25.3.1_6b469355a47fb1149deb770b78ee14fd78d9ab50\classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
-        jar="C:\Users\Patrick\.android\build-cache\7a2405274c8ce9ec66fa28bb8874e61283d03c28\output\jars\classes.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="da27a32db6af8954ee8061537c7d476fcb1df46f">
-        <dex dex="D:\Projects\Android\Projects\SmartDialer\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_ad3c0e62dfd3e1a20b01c0e5acbca147af1786a0\classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
-        jar="C:\Users\Patrick\.android\build-cache\281e98bd3f2bba470579223aac23d76b63f68948\output\jars\classes.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="4a26a1154d053ab11aaf4c3967c42a4d66390991">
-        <dex dex="D:\Projects\Android\Projects\SmartDialer\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_d8d90a0663db8008f27ebd72d97e8a55025ee3e9\classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
-        jar="C:\Users\Patrick\.android\build-cache\024f4c17a57485753c4e75e621182de9b18e9ff2\output\jars\classes.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="38789e20ace9ab7dbd00554bd2673ab424478d3b">
-        <dex dex="D:\Projects\Android\Projects\SmartDialer\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_92cef75979ee128994535812f712b2a61f685444\classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
-        jar="C:\Users\Patrick\.android\build-cache\e528f5441f5e5db1c1eef290e0fd2aa89f4ddfd4\output\jars\classes.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="150252b33b00274cc868578ade018fda0d43a3eb">
-        <dex dex="D:\Projects\Android\Projects\SmartDialer\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_60d101e2dc844827432682b5f91932759b19fdf1\classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
-        jar="C:\Users\Patrick\.android\build-cache\0fd0686f9874246a781e730a62a5de2ae99a40ee\output\jars\classes.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="efb8cb62d47d157c29d1521daac7eefd4cb881ee">
-        <dex dex="D:\Projects\Android\Projects\SmartDialer\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_6faa9549267c1abed9e0701cdd9027d88a3431d5\classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
-        jar="C:\Users\Patrick\.android\build-cache\9afcf23c40b458b1c3ef4aab935fe4e4fbaf1820\output\jars\classes.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="d7c42c80f6509b9ea4db28ca7859ffae08ec5741">
-        <dex dex="D:\Projects\Android\Projects\SmartDialer\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_3ea5e19782faa7cabf8b1e39924396129e63df10\classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
-        jar="C:\Users\Patrick\.android\build-cache\fd90c68372e398321d0cbadc6df573d6d498f646\output\jars\classes.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="45f697922e6f072daa12f8a2995dc77ab03c11da">
-        <dex dex="D:\Projects\Android\Projects\SmartDialer\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_c8baee274ac739b313f6e1dce067a1d6435aa79d\classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
-        jar="C:\Users\Patrick\.android\build-cache\6dbe0b523ac6ab16f6eebaa9b21e6f0376148350\output\jars\classes.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="47635644d0d5c103c1dd8360549eb9ba3225c7d3">
-        <dex dex="D:\Projects\Android\Projects\SmartDialer\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_62f5f91623a2915f1e06bb8ba93c20af6a56b4c1\classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
-        jar="C:\Users\Patrick\.android\build-cache\cea59b1f361202701e85bda16f5eb04a831a6f71\output\jars\classes.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="d4cf6227dd6a2ceff0f7dcf0c324380b7abf2c28">
-        <dex dex="D:\Projects\Android\Projects\SmartDialer\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_ebb90596484dad9ad83b3ea052ccd276eae112aa\classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
-        jar="C:\Users\Patrick\.android\build-cache\962da3956eac7dc4c5b74ff96924c52b84fa58dd\output\jars\classes.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="6ef31f1555bb4cc513ec8d52711365a8b89f3600">
-        <dex dex="D:\Projects\Android\Projects\SmartDialer\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_5bd5d4a7c32e373af9a2c58711c237c069978ede\classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
         jar="D:\Projects\Android\Projects\SmartDialer\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
         jumboMode="true"
         optimize="true"
         revision="25.0.2"
-        sha1="ee9da8c4625b1f77202560a32842ddad7f34ef41">
+        sha1="c8f560bdf3710bbe7ccf829fcaea5ebb5080983b">
         <dex dex="D:\Projects\Android\Projects\SmartDialer\app\build\intermediates\transforms\dex\debug\folders\1000\10000\instant-run-bootstrap_dd38a1b37bfc2f6d597c3dd1de978bfc9295df89\classes.dex" />
     </item>
 

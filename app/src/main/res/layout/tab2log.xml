@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -6,12 +7,58 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.omar.smartdialer.MainActivity">
+    tools:context="com.bitjunkie.smartdialer.MainActivity">
 
-    <TextView
-        android:id="@+id/section_label"
-        android:layout_width="wrap_content"
+    <ScrollView
+        android:id="@+id/callLogScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="424dp"
+        android:layout_above="@+id/linearLayout">
+
+        <LinearLayout
+            android:id="@+id/logList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text ="Tab2 Log text"/>
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/linearLayout">
+
+        <ToggleButton
+            android:id="@+id/btnIncoming"
+            style="Incoming"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="ToggleButton"
+            android:textOff="Incoming"
+            android:textOn="Incoming" />
+
+        <ToggleButton
+            android:id="@+id/btnOutgoing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textOff="Outgoing"
+            android:textOn="Outgoing" />
+
+        <ToggleButton
+            android:id="@+id/btnMissed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textOff="Missed"
+            android:textOn="Missed" />
+
+    </LinearLayout>
 
 </RelativeLayout>
