@@ -33,9 +33,25 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import android.content.ContentResolver;
+
 import static android.R.attr.gravity;
 import static android.text.InputType.TYPE_CLASS_PHONE;
 
+
+
+Public class Tab3Contacts extends ListActivity {
+    private static final int CONTACT_CREATE = 0;
+    private static final int CONTACT_EDIT = 1;
+
+    //select the second one, Android view menu
+    private static final int INSERT_ID = Menu.FIRST;
+    private static final int DELETE_ID = Menu.FIRST + 1;
+
+    private DBHelper dbHelper;
+    private Cursor c;
+
+    
 public class Tab3Contacts extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,14 +60,12 @@ public class Tab3Contacts extends Fragment{
         return rootView;
     }
 
-    LinearLayout logList;
-    LinearLayout logComponentPrefab;
+    LinearLayout contactList;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.tab2log, container, false);
-        logList = (LinearLayout) rootView.findViewById(R.id.logList);
-        logComponentPrefab = (LinearLayout) rootView.findViewById(R.id.logComponentPrefab);
+        View rootView = inflater.inflate(R.layout.tab3contacts, container, false);
+        contactList = (LinearLayout) rootView.findViewById(R.id.contactList);
 
         return rootView;
     }
@@ -61,6 +75,38 @@ public class Tab3Contacts extends Fragment{
         getCallDetails();
     }
     public void getCallDetails() {
+
+        // Call list retrieval example from Stack Overflow
+        ContentResolver cr = getContentResolver();
+        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
+                null, null, null, null);
+
+        if (cur.getCount() > 0) {
+            while (cur.moveToNext()) {
+                String id = cur.getString(
+                        cur.getColumnIndex(ContactsContract.Contacts._ID));
+                String name = cur.getString(cur.getColumnIndex(
+                        ContactsContract.Contacts.DISPLAY_NAME));
+
+                if (cur.getInt(cur.getColumnIndex(
+                        ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
+                    Cursor pCur = cr.query(
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            null,
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = ?",
+                            new String[]{id}, null);
+                    while (pCur.moveToNext()) {
+                        String phoneNo = pCur.getString(pCur.getColumnIndex(
+                                ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        Toast.makeText(NativeContentProvider.this, "Name: " + name
+                                + ", Phone No: " + phoneNo, Toast.LENGTH_SHORT).show();
+                    }
+                    pCur.close();
+                }
+            }
+        }
+
+        // Pat's code
         if( ContextCompat.checkSelfPermission(this.getActivity(),
                 Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
             System.exit(0);
@@ -73,7 +119,7 @@ public class Tab3Contacts extends Fragment{
         int duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION);
         while (managedCursor.moveToNext()) {
             //View v = LayoutInflater.from(this.getActivity()).inflate(R.layout.calllog, null);
-            //logList.addView(v);
+            //contactList.addView(v);
 
             String phNumber = managedCursor.getString(number);
             String callType = managedCursor.getString(type);
@@ -153,7 +199,7 @@ public class Tab3Contacts extends Fragment{
         //linTimeInfo.getLayoutParams().width = dpToPx(256);
 
         //View v = LayoutInflater.from(this.getActivity()).inflate(R.layout.calllog, null);
-        logList.addView(linBase);
+        contactList.addView(linBase);
         linBase.getLayoutParams().height = dpToPx(64);
         linBase.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
         //LayoutInflater.from(getActivity()).inflate(linBase, null);
@@ -163,6 +209,4 @@ public class Tab3Contacts extends Fragment{
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
         return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
-
 }
-
