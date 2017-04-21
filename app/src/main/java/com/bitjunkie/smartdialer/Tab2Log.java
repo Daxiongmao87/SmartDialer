@@ -6,39 +6,48 @@ package com.bitjunkie.smartdialer;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
+import android.provider.ContactsContract;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.ArrayList;
 import java.util.Date;
 import android.database.Cursor;
 import android.provider.CallLog;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import static android.R.attr.gravity;
 import static android.text.InputType.TYPE_CLASS_PHONE;
 
 public class Tab2Log extends Fragment{
     LinearLayout logList;
-    LinearLayout logComponentPrefab;
+    ArrayList<LinearLayout> logItems;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.tab2log, container, false);
         logList = (LinearLayout) rootView.findViewById(R.id.logList);
-        logComponentPrefab = (LinearLayout) rootView.findViewById(R.id.logComponentPrefab);
-
+        logItems = new ArrayList<>();
         return rootView;
     }
     @Override
@@ -83,7 +92,10 @@ public class Tab2Log extends Fragment{
         }
     }
     //Programmatically add call log item
+
     public void createLogItem(String phNumber, String callType, Date callDayTime, String callDuration, String dir){
+        final String number = phNumber;
+        String contactName = FindContactName(getActivity(),phNumber);
         LinearLayout linBase = new LinearLayout(getActivity());
         ImageView imgPhoto = new ImageView(getActivity());
         LinearLayout linCaller = new LinearLayout(getActivity());
@@ -94,7 +106,7 @@ public class Tab2Log extends Fragment{
         TextView txtTime = new TextView(getActivity());
 
         String callDate = Integer.toString(callDayTime.getDay()) + "/" + Integer.toString(callDayTime.getMonth()) + "/" + Integer.toString(callDayTime.getYear()).substring(1,3);
-        txtName.setText("Test");
+        txtName.setText(contactName);
         txtNumber.setInputType(TYPE_CLASS_PHONE);
         txtNumber.setText(phNumber);
         txtState.setText(dir);
@@ -139,13 +151,48 @@ public class Tab2Log extends Fragment{
         //linTimeInfo.getLayoutParams().width = dpToPx(256);
 
         //View v = LayoutInflater.from(this.getActivity()).inflate(R.layout.calllog, null);
-        logList.addView(linBase);
+        logList.addView(linBase,0);
         linBase.getLayoutParams().height = dpToPx(64);
         linBase.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
+        linBase.setClickable(true);
+        linBase.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TabHost host = (TabHost) getActivity().findViewById(android.R.id.tabhost);
+                //host.setCurrentTab(0);
+                String permission = "android.permission.CALL_PHONE";
+                int res = getActivity().getApplicationContext().checkCallingOrSelfPermission(permission);
+                if (res == PackageManager.PERMISSION_GRANTED) {
+                    startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+number.trim())));
+                }
+                else {
+
+                }
+            }
+        });
+        logItems.add(linBase);
         //LayoutInflater.from(getActivity()).inflate(linBase, null);
     }
 
-    public int dpToPx(int dp) {
+    public static String FindContactName(Context context, String phoneNumber) {
+        ContentResolver cr = context.getContentResolver();
+        Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode("tel:"+phoneNumber));
+        Cursor cursor = cr.query(uri, new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME}, null, null, null);
+        if (cursor == null) {
+            return null;
+        }
+        String contactName = null;
+        if(cursor.moveToFirst()) {
+            contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME));
+        }
+
+        if(cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
+
+        return contactName;
+    }
+        public int dpToPx(int dp) {
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
         return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }

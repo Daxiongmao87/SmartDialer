@@ -131,7 +131,6 @@ public class MainActivity extends AppCompatActivity {
             //Returning the current tabs
            switch(position) {
                case 0:
-
                    Fragment frag = new Tab1Dialer();
                    return frag;
                case 1:
