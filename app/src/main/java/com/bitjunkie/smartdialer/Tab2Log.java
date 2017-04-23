@@ -5,19 +5,26 @@ package com.bitjunkie.smartdialer;
  */
 
 import android.Manifest;
-import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.ContactsContract;
-import android.support.design.widget.Snackbar;
+import android.provider.MediaStore;
+import android.provider.Telephony;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.util.AttributeSet;
+import android.support.v4.content.LocalBroadcastManager;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -25,16 +32,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import android.database.Cursor;
 import android.provider.CallLog;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import static android.R.attr.gravity;
 import static android.text.InputType.TYPE_CLASS_PHONE;
@@ -42,12 +55,38 @@ import static android.text.InputType.TYPE_CLASS_PHONE;
 public class Tab2Log extends Fragment{
     LinearLayout logList;
     ArrayList<LinearLayout> logItems;
+    boolean bIncoming = true;
+    boolean bOutgoing = true;
+    boolean bMissed = true;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.tab2log, container, false);
         logList = (LinearLayout) rootView.findViewById(R.id.logList);
         logItems = new ArrayList<>();
+
+        ToggleButton btnOutgoing = (ToggleButton) rootView.findViewById(R.id.btnOutgoing);
+        btnOutgoing.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                bOutgoing = isChecked;
+                FilterLog();
+            }
+        });
+        ToggleButton btnIncoming = (ToggleButton) rootView.findViewById(R.id.btnIncoming);
+        btnIncoming.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                bIncoming = isChecked;
+                FilterLog();
+            }
+        });
+        ToggleButton btnMissed = (ToggleButton) rootView.findViewById(R.id.btnMissed);
+        btnMissed.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                bMissed = isChecked;
+                FilterLog();
+            }
+        });
         return rootView;
     }
     @Override
@@ -106,15 +145,25 @@ public class Tab2Log extends Fragment{
         TextView txtTime = new TextView(getActivity());
 
         String callDate = Integer.toString(callDayTime.getDay()) + "/" + Integer.toString(callDayTime.getMonth()) + "/" + Integer.toString(callDayTime.getYear()).substring(1,3);
-        txtName.setText(contactName);
+        if(contactName == null) {
+            txtName.setVisibility(View.GONE);
+        }
+        else {
+            txtName.setText(contactName);
+        }
         txtNumber.setInputType(TYPE_CLASS_PHONE);
         txtNumber.setText(phNumber);
         txtState.setText(dir);
 
         txtTime.setText(callDate);
+
+        //imgPhoto.setImageURI(null);
+        //imgPhoto.setImageDrawable(Drawable.createFromPath(photoUri.getPath()));
         imgPhoto.setImageResource(R.drawable.default_photo);
-
-
+        String contactPhotoURI = FindContactPhoto(getActivity(),phNumber);
+        if(contactPhotoURI != null) {
+            imgPhoto.setImageURI(Uri.parse(contactPhotoURI));
+        }
         linBase.addView(imgPhoto);
         linBase.addView(linCaller);
         linBase.addView(linTimeInfo);
@@ -185,14 +234,46 @@ public class Tab2Log extends Fragment{
         if(cursor.moveToFirst()) {
             contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME));
         }
-
         if(cursor != null && !cursor.isClosed()) {
             cursor.close();
         }
-
         return contactName;
     }
-        public int dpToPx(int dp) {
+
+
+
+    public void FilterLog() {
+        for(int i = 0; i < logItems.size(); i++) {
+            LinearLayout infoSection = (LinearLayout) logItems.get(i).getChildAt(2);
+            TextView callTypeSection = (TextView) infoSection.getChildAt(0);
+            String callType = callTypeSection.getText().toString();
+            if(callType.equals("Outgoing"))
+                logItems.get(i).setVisibility((bOutgoing ? View.VISIBLE : View.GONE));
+            else if(callType.equals("Incoming"))
+                logItems.get(i).setVisibility((bIncoming ? View.VISIBLE : View.GONE));
+            else
+                logItems.get(i).setVisibility((bMissed ? View.VISIBLE : View.GONE));
+        }
+    }
+
+    public static String FindContactPhoto(Context context, String phoneNumber) {
+        ContentResolver cr = context.getContentResolver();
+        Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode("tel:"+phoneNumber));
+        Cursor cursor = cr.query(uri, new String[]{ContactsContract.PhoneLookup.PHOTO_THUMBNAIL_URI}, null, null, null);
+        if (cursor == null) {
+            return null;
+        }
+        String contactPhoto = null;
+        if(cursor.moveToFirst()) {
+            contactPhoto = cursor.getString(cursor.getColumnIndex(ContactsContract.PhoneLookup.PHOTO_THUMBNAIL_URI));
+        }
+        if(cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
+        return contactPhoto;
+    }
+
+    public int dpToPx(int dp) {
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
         return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
