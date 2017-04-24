@@ -14,8 +14,10 @@ package com.bitjunkie.smartdialer;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -36,11 +38,32 @@ import android.widget.TextView;
 import android.content.ContentResolver;
 
 import static android.R.attr.gravity;
+import static android.R.attr.targetActivity;
 import static android.text.InputType.TYPE_CLASS_PHONE;
 
+// extends ListActivity ?
+public class Tab3Contacts extends Fragment implements View.OnClickListener {
+    FloatingActionButton addContactButton;
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.tab3contacts, container, false);
 
 
-Public class Tab3Contacts extends ListActivity {
+
+        return rootView;
+    }
+
+
+
+
+    @Override
+    public void onClick(View view) {
+
+    }
+}
+
+/*
     private static final int CONTACT_CREATE = 0;
     private static final int CONTACT_EDIT = 1;
 
@@ -51,7 +74,7 @@ Public class Tab3Contacts extends ListActivity {
     private DBHelper dbHelper;
     private Cursor c;
 
-    
+
 public class Tab3Contacts extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -210,3 +233,4 @@ public class Tab3Contacts extends Fragment{
         return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 }
+*/
