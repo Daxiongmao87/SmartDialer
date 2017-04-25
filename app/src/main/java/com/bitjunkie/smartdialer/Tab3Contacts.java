@@ -49,8 +49,14 @@ public class Tab3Contacts extends Fragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.tab3contacts, container, false);
 
-
-
+        FloatingActionButton addContact = (FloatingActionButton) getActivity().findViewById(R.id.addContactButton);
+        addContact.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Intent myIntent = new Intent(view.getContext(), addContact.class);
+                //startActivityForResult(myIntent, 0);
+                startActivity(myIntent);
+            }
+        });
         return rootView;
     }
 
