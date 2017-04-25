@@ -15,56 +15,97 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-public class JSONParser {
+/**
+ *  
+ * FILE NAME: JSONParser.java
+ * 
+ * DESCRIPTION: This java file retrieves JSON data and sets 
+ * it up in a parsable format for pulling data from the White Pages API.
+ *
+ *   DATE       BY      DESCRIPTION
+ * ======== ========== =============
+ * 4/20/2017 Patrick R. Created the class
+ * 
+ */
+
+public class JSONParser 
+{
 
     static InputStream is = null;
     static JSONObject json = null;
     static String output = "";
 
     // constructor
-    public JSONParser() {
+    public JSONParser() 
+    {
 
     }
 
-    public JSONObject getJSONFromUrl(String url, List params) {
+    public JSONObject getJSONFromUrl(String url, List params) 
+    {
+
         URL _url;
         HttpURLConnection urlConnection;
 
-        try {
+        try 
+        {
+
             _url = new URL(url);
             urlConnection = (HttpURLConnection) _url.openConnection();
         }
-        catch (MalformedURLException e) {
+
+        catch (MalformedURLException e) 
+        {
+
             Log.e("JSON Parser", "Error due to a malformed URL " + e.toString());
             return null;
         }
-        catch (IOException e) {
+
+        catch (IOException e) 
+        {
+
             Log.e("JSON Parser", "IO error " + e.toString());
             return null;
         }
 
-        try {
+        try 
+        {
+
             is = new BufferedInputStream(urlConnection.getInputStream());
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             StringBuilder total = new StringBuilder(is.available());
             String line;
-            while ((line = reader.readLine()) != null) {
+
+            while ((line = reader.readLine()) != null) 
+            {
                 total.append(line).append('\n');
             }
+
             output = total.toString();
         }
-        catch (IOException e) {
+
+        catch (IOException e) 
+        {
+
             Log.e("JSON Parser", "IO error " + e.toString());
             return null;
         }
-        finally{
+        
+        finally
+        {
+
             urlConnection.disconnect();
         }
 
-        try {
+        try 
+        {
+
             json = new JSONObject(output);
         }
-        catch (JSONException e) {
+
+        catch (JSONException e) 
+        {
+            
             Log.e("JSON Parser", "Error parsing data " + e.toString());
         }
 
