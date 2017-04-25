@@ -19,4 +19,3 @@ public class Tab3Contacts extends Fragment{
         return rootView;
     }
 }
-
