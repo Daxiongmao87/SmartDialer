@@ -1,9 +1,5 @@
 package com.bitjunkie.smartdialer;
 
-/**
- * Created by Omar on 4/4/2017.
- */
-
 
 import android.Manifest;
 import android.content.ContentResolver;
@@ -42,6 +38,24 @@ import java.util.Date;
 import static android.R.attr.id;
 import static android.text.InputType.TYPE_CLASS_PHONE;
 
+/**
+ *
+ * FILE NAME: Tab3Contacts.java
+ *
+ * DESCRIPTION: This java file handles the functionality
+ * for the Contacts tab of the Smart Dialer application.
+ * This tab contains a tab for each contact stored by the user,
+ * which includes their phone number and information collected
+ * by the White Pages API.
+ *
+ *
+ *
+ *   DATE      BY         DESCRIPTION
+ * ========   =====       ============
+ * 4/4/2017   Omar Q.     Created the class
+ * 4/25/2017 Patrick R.   Finished the class
+ */
+
 public class Tab3Contacts extends Fragment{
 
     LinearLayout contactList;
@@ -51,11 +65,23 @@ public class Tab3Contacts extends Fragment{
     boolean bOutgoing = true;
     boolean bMissed = true;
 
-
+    /**
+     * called when the fragment is instantiated.  Not used
+     * @param savedInstanceState - Latest saved paused state
+     */
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
     }
+
+    /**
+     * Called when the fragment view is created.  Contact List arrays
+     * are initialized.
+     * @param inflater - Inflates the layout
+     * @param container - The layout container this fragment belongs to
+     * @param savedInstanceState - Saved state of fragment before pause
+     * @return returns the View to the Main Activity
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -66,14 +92,19 @@ public class Tab3Contacts extends Fragment{
         getContactDetails();
         return rootView;
     }
+    //Some permissions variables
     int MY_PERMISSION_REQUEST_READ_CONTACTS = 2;
     int MY_PERMISSION_REQUEST_WRITE_CONTACTS = 3;
     int MY_PERMISSION_REQUEST_CALL_PHONE = 4;
+
+    /**
+     * This method pulls the needed info from the built-in Android contacts
+     * database.  Firstly it asks for the appropriate permissions
+     */
     public void getContactDetails() {
         if( ContextCompat.checkSelfPermission(this.getActivity(),
                 Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_CONTACTS},MY_PERMISSION_REQUEST_READ_CONTACTS);
-            Log.e("PERMISSIONS","READ CONTACTS");
             if( ContextCompat.checkSelfPermission(this.getActivity(),
                     Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
                 return;
@@ -82,13 +113,11 @@ public class Tab3Contacts extends Fragment{
         if( ContextCompat.checkSelfPermission(this.getActivity(),
                 Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_CONTACTS},MY_PERMISSION_REQUEST_WRITE_CONTACTS);
-            Log.e("PERMISSIONS","WRITE CONTACTS");
             if( ContextCompat.checkSelfPermission(this.getActivity(),
                     Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
         }
-        Log.e("PERMTEST","PERMISSIOSN CLEARFOR CONTACTS");
         StringBuffer sb = new StringBuffer();
         Cursor managedCursor = getActivity().getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null,null,null,ContactsContract.Contacts.DISPLAY_NAME + " DESC");
         int nameColumn = managedCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
@@ -112,7 +141,12 @@ public class Tab3Contacts extends Fragment{
         managedCursor.close();
     }
 
-    //Programmatically add call log item
+    /**
+     * Programatically adds the contact layout items to the scroll view
+     * @param phNumber - Phone number used for dialing a number
+     * @param name - Name to display
+     * @param photoURI - Photo URI to display image
+     */
     public void createContactItem(String phNumber, String name, String photoURI){
         final String number = phNumber;
         String contactName = name;
@@ -187,22 +221,38 @@ public class Tab3Contacts extends Fragment{
             }
         });
     }
+
+    /**
+     * called when fragment is not visible, removes all the contacft items
+     */
     @Override
     public void onPause() {
         super.onPause();
         contactList.removeAllViews();
     }
 
+    /**
+     * Not used yet, hopefully will be able to use when
+     * we figure out when to better remove all views
+     */
     public void onUpdated() {
         contactList.removeAllViews();
         getContactDetails();
     }
 
+    /**
+     * called when the fragment is visible again
+     */
     @Override
     public void onResume() {
         super.onResume();
 
     }
+    /**
+     * DpToPx Used to convert DP measurements to pixel measurements
+     * @param dp - dp to convert
+     * @return returns the pixel measurement
+     */
     public int dpToPx(int dp) {
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
         return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));

@@ -35,12 +35,20 @@ public class JSONParser
     static JSONObject json = null;
     static String output = "";
 
-    // constructor
+    /**
+     * Constructor
+     */
     public JSONParser() 
     {
 
     }
 
+    /**
+     * getJSONFromUrl retrieves the json data from a url using
+     * @param url - url passed
+     * @param params - Parameters (not used)
+     * @return
+     */
     public JSONObject getJSONFromUrl(String url, List params) 
     {
 

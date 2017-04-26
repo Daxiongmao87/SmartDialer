@@ -72,6 +72,9 @@ import static android.text.InputType.TYPE_CLASS_PHONE;
  * 4/25/2017 Patrick R. Finished the class
  */
 
+/**
+ * Tab2Log class is a fragment class that handles the Log page
+ */
 public class Tab2Log extends Fragment{
     LinearLayout logList;
     ArrayList<LinearLayout> logItems;
@@ -82,10 +85,23 @@ public class Tab2Log extends Fragment{
     DatabaseOperator dbo;
 
     @Override
+    /**
+     * On create is part of the fragment lifecycle.  Here
+     * The database handler is instantiated
+     */
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         dbo = new DatabaseOperator(getActivity());
     }
+
+    /**
+     * onCreateView happens after the onCreate.  Here many variables are initialized,
+     * specifically ones that need to be initialized at the beginning
+     * @param inflater - Handles the layout view
+     * @param container - The container that the fragment is in
+     * @param savedInstanceState - The state of the fragment when paused
+     * @return returns the view to the MainActivity
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -114,14 +130,21 @@ public class Tab2Log extends Fragment{
                 FilterLog();
             }
         });
-        //Check if our ListedNumbers database exists, if not, create it
-
-        //SQLiteDatabase db = dbo.getWritableDatabase();
-        //getContactDetails(db);
         return rootView;
     }
+
+    /**
+     * Some int variables used for permissions
+     */
     int MY_PERMISSION_REQUEST_READ_CALL_LOG = 1;
     int MY_PERMISSION_REQUEST_CALL_PHONE = 4;
+
+    /**
+     * This method handles grabbing the info from the call log, iterated for each item in the CallLog database
+     * using a cursor to navigate through the database
+     * @param db - This is actually the ListedNumbers database that's used to store numbers that have been
+     *           looked up
+     */
     public void getCallDetails(SQLiteDatabase db) {
         if( ContextCompat.checkSelfPermission(this.getActivity(),
                 Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
@@ -171,7 +194,18 @@ public class Tab2Log extends Fragment{
             createLogItem(db, phNumber,callType,callDayTime,callDuration,dir, call_id);
         }
     }
-    //IF the log item exists, update it
+
+    /**
+     * updateLogItem is a class that attempts to update any call log item that has
+     * recently been looked up using the reverse lookup api
+     * @param logItem - The specific call log item
+     * @param dbase - The database for Listed Numbers
+     * @param phNumber - Phone number pulled from call log
+     * @param callType - Call type of the log item (Not Used)
+     * @param callDayTime - Date of log item
+     * @param callDuration - Duration of the call (Not used)
+     * @param dir - State of phonecall (outgoing, incoming, missed) for the log item
+     */
     public void updateLogItem(LinearLayout logItem, SQLiteDatabase dbase, String phNumber, String callType, Date callDayTime, String callDuration, String dir){
         final SQLiteDatabase db = dbase;
         final String number = phNumber;
@@ -207,17 +241,13 @@ public class Tab2Log extends Fragment{
                     null,
                     sortOrder
             );
-           // Log.e("TESTING","DB TEST: Checking " + number);
             if(cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 txtName.setText(cursor.getString(0));
-                //Log.e("TESTING","DB TEST: Found! " + number + ": " + cursor.getString(0));
             } else{
                 txtName.setVisibility(View.GONE);
-                //Log.e("TESTING","DB TEST: NOT FOUND :( " + number);
             }
             cursor.close();
-            //txtName.setVisibility(View.GONE);
         }
         else {
             txtName.setText(contactName);
@@ -228,15 +258,24 @@ public class Tab2Log extends Fragment{
 
         txtTime.setText(callDate);
 
-        //imgPhoto.setImageURI(null);
-        //imgPhoto.setImageDrawable(Drawable.createFromPath(photoUri.getPath()));
         imgPhoto.setImageResource(R.drawable.default_photo);
         String contactPhotoURI = FindContactPhoto(getActivity(),phNumber);
         if(contactPhotoURI != null) {
             imgPhoto.setImageURI(Uri.parse(contactPhotoURI));
         }
     }
-    //Programmatically add call log item
+
+    /**
+     * createLogItem programmatically creates the layout items for each call log entry
+     * and places them in the scroll view
+     * @param dbase - Reverse Lookup database
+     * @param phNumber - Phone number of log item
+     * @param callType - Type of phone call (not used)
+     * @param callDayTime - Date object (contains date and time)
+     * @param callDuration - Duration of phonecall (not used)
+     * @param dir - State of phone call (outgoing, incoming, missed) of the log item
+     * @param id - id of the log item using a unique identifier
+     */
     public void createLogItem(SQLiteDatabase dbase, String phNumber, String callType, Date callDayTime, String callDuration, String dir, String id){
         final SQLiteDatabase db = dbase;
         final String number = phNumber;
@@ -273,17 +312,13 @@ public class Tab2Log extends Fragment{
                     null,
                     sortOrder
             );
-            //\Log.e("TESTING","DB TEST: Checking " + number);
             if(cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 txtName.setText(cursor.getString(0));
-                //Log.e("TESTING","DB TEST: Found! " + number + ": " + cursor.getString(0));
             } else{
                 txtName.setVisibility(View.GONE);
-              //  Log.e("TESTING","DB TEST: NOT FOUND :( " + number);
             }
             cursor.close();
-            //txtName.setVisibility(View.GONE);
         }
         else {
             txtName.setText(contactName);
@@ -294,8 +329,6 @@ public class Tab2Log extends Fragment{
 
         txtTime.setText(callDate);
 
-        //imgPhoto.setImageURI(null);
-        //imgPhoto.setImageDrawable(Drawable.createFromPath(photoUri.getPath()));
         imgPhoto.setImageResource(R.drawable.default_photo);
         String contactPhotoURI = FindContactPhoto(getActivity(),phNumber);
         if(contactPhotoURI != null) {
@@ -334,9 +367,7 @@ public class Tab2Log extends Fragment{
         loparams = (LinearLayout.LayoutParams) imgPhoto.getLayoutParams();
         imgPhoto.getLayoutParams().height = dpToPx(48);
         loparams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.TOP;
-        //linTimeInfo.getLayoutParams().width = dpToPx(256);
 
-        //View v = LayoutInflater.from(this.getActivity()).inflate(R.layout.calllog, null);
         logList.addView(linBase,0);
         linBase.getLayoutParams().height = dpToPx(64);
         linBase.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
@@ -344,8 +375,7 @@ public class Tab2Log extends Fragment{
         linBase.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TabHost host = (TabHost) getActivity().findViewById(android.R.id.tabhost);
-                //host.setCurrentTab(0);
+                //check permissions
                 String permission = "android.permission.CALL_PHONE";
 
                 int res = getActivity().getApplicationContext().checkCallingOrSelfPermission(permission);
@@ -364,8 +394,12 @@ public class Tab2Log extends Fragment{
         });
         logItems.add(linBase);
         logIDs.add(id);
-        //LayoutInflater.from(getActivity()).inflate(linBase, null);
     }
+
+    /**
+     * Lookup is an internal asynchronous task to query the reverse-lookup service
+     * for information based on the phone number provided in the call log
+     */
     class Lookup extends AsyncTask<String, Integer, JSONObject> {
         private Context context;
         private String phonenumber;
@@ -375,19 +409,23 @@ public class Tab2Log extends Fragment{
             phonenumber = pn;
             db = dbase;
         }
+
+        /**
+         *  doInBackground runs the code in the background (off the main
+         *  thread).  Specifically, using the API key, the method sends a
+         *  web request to whitepages.com with the phone number and retrieves
+         *  a JSONfile which later is parsed to our needs
+         * @param params - No params used
+         * @return returns the JSONObject retrieved from the website
+         */
         protected JSONObject doInBackground(String... params){
-            Log.e("NUMBER!",phonenumber);
             if(phonenumber !=null) {
                 try {
                     String key = "d406a59b6c444b669f42f21d92306923";
                     String url = "https://proapi.whitepages.com/3.0/phone.json?api_key=" + key + "&phone=" + URLEncoder.encode(phonenumber,"UTF-8").toString();
                     JSONParser jsonParser = new JSONParser();
                     JSONObject payload = jsonParser.getJSONFromUrl(url, null);
-                    Log.e("TESTING","TEST2: " + payload.getJSONArray("belongs_to").getJSONObject(0).getString("name"));
                     return payload;
-                }
-                catch (org.json.JSONException e) {
-                    Log.e("JSON","JSON Error: " + e.toString());
                 }
                 catch (java.io.UnsupportedEncodingException e) {
                     Log.e("URL","Encoding Error: " + e.toString());
@@ -395,18 +433,29 @@ public class Tab2Log extends Fragment{
             }
             return null;
         }
-        protected void onPostExecute(JSONObject result) {
-            Log.e("TESTJSON",result.toString());
-            if(result != null) {
 
+        /**
+         * Parses the data using the JSONParser class.  If the number
+         * is not from a business, the info is not used.  We decided
+         * this for ethical reasons.
+         * @param result - the JSONObject that was retrieved from the
+         *               lookup request (whitepages)
+         */
+        protected void onPostExecute(JSONObject result) {
+            String name = "";
+            String address = "";
+            String city = "";
+            String zip = "";
+            String state = "";
+            String country = "";
                 try {
-                    String name = result.getJSONArray("belongs_to").getJSONObject(0).getString("name");
-                    String address = "";
-                    String city = "";
-                    String zip = "";
-                    String state = "";
-                    String country = "";
-                    if (result.get("is_commercial").equals("true")) {
+                    if(result != null && result.get("is_commercial").equals("true")) {
+                        name = result.getJSONArray("belongs_to").getJSONObject(0).getString("name");
+                        address = "";
+                        city = "";
+                        zip = "";
+                        state = "";
+                        country = "";
                         if (result.getJSONArray("belongs_to").getJSONObject(0).getString("location_type").equals("Address")) {
                             address = result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_1");
                             if (result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_2") != null) {
@@ -417,14 +466,26 @@ public class Tab2Log extends Fragment{
                                 country = result.getJSONArray("belongs_to").getJSONObject(0).getString("countrey_code");
                             }
                         }
+                        PopulateInfo(db, phonenumber, name, address, city, zip, state, country);
                     }
-                    PopulateInfo(db, phonenumber, name, address, city, zip, state, country);
                 } catch (org.json.JSONException e) {
                     Log.e("JSON", "JSON Error: " + e.toString());
                 }
-            }
         }
     }
+
+    /**
+     * PopulateInfo populates the ListedNumbers database with our newfound information
+     * to be used in the call log
+     * @param db - SQLitedatabase for ListedNumbers
+     * @param number - phone number
+     * @param name - retrieved name
+     * @param address - retrieved address
+     * @param city - retrieved city
+     * @param zip - retrieved zipcode
+     * @param state - retrieved state
+     * @param country - retrieved country
+     */
     public void PopulateInfo(SQLiteDatabase db, String number,String name, String address, String city, String zip, String state, String country){
 
         ContentValues values = new ContentValues();
@@ -436,9 +497,16 @@ public class Tab2Log extends Fragment{
         values.put("state",state);
         values.put("country",country);
         db.insert("LISTEDNUMBERS",null,values);
-        //db.close();
-        ///dbo.close();
+
     }
+
+    /**
+     * FindContactName searches the Contacts database (ContactsContract) for
+     * the name of a potentially matched phone number from the call log
+     * @param context - Context of the main activity
+     * @param phoneNumber - Phone number used to search for the contact name
+     * @return the name of the found contact
+     */
     public static String FindContactName(Context context, String phoneNumber) {
         ContentResolver cr = context.getContentResolver();
         Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode("tel:"+phoneNumber));
@@ -456,19 +524,34 @@ public class Tab2Log extends Fragment{
         return contactName;
     }
 
+    /**
+     * OnPause is part of the fragment lifecycle and is called
+     * when the fragment is no longer on the screen
+     * We remove all views (need a better method than this) so it can
+     * be repopulated with the updated call log later
+     */
     @Override
     public void onPause() {
         super.onPause();
         logList.removeAllViews();
     }
 
+    /**
+     * OnResume happens when the fragment is visible.
+     * Starts to repopulate the call log again
+     */
     @Override
     public void onResume() {
         super.onResume();
-        Log.e("TESTONRESUME","RESUME");
         SQLiteDatabase db = dbo.getWritableDatabase();
         getCallDetails(db);
     }
+
+    /**
+     * FilterLog is used to filter the log based on the phone call states
+     * (outgoing, incoming, missed).  These booleans (bOutgoing, bIncoming, bMissed)
+     * are toggled by the GUI buttons on the bottom of the screen
+     */
     public void FilterLog() {
         for(int i = 0; i < logItems.size(); i++) {
             LinearLayout infoSection = (LinearLayout) logItems.get(i).getChildAt(2);
@@ -483,6 +566,12 @@ public class Tab2Log extends Fragment{
         }
     }
 
+    /**
+     * FindContactPhoto works the same way as FindContactName, but for the photo URI
+     * @param context - Context of the main Activity
+     * @param phoneNumber - Phone number used for the search
+     * @return - returns the phonto URI (path)
+     */
     public static String FindContactPhoto(Context context, String phoneNumber) {
         ContentResolver cr = context.getContentResolver();
         Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode("tel:"+phoneNumber));
@@ -500,6 +589,11 @@ public class Tab2Log extends Fragment{
         return contactPhoto;
     }
 
+    /**
+     * DpToPx Used to convert DP measurements to pixel measurements
+     * @param dp - dp to convert
+     * @return returns the pixel measurement
+     */
     public int dpToPx(int dp) {
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
         return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));

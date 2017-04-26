@@ -33,7 +33,7 @@ import java.net.URLEncoder;
  *   DATE       BY      DESCRIPTION
  * ======== ========== =============
  * 4/19/2017 Patrick R. Created the class
- * 
+ * 4/22/2017 Patrick R. Finished the class
  */
 
 public class ReverseLookup extends Service 
@@ -42,12 +42,22 @@ public class ReverseLookup extends Service
     BroadcastReceiver br;
     private static boolean ringing = false;
     private static boolean incoming = false;
-
+    /**
+     * Broadcast listener for listening to a variety of interactions
+     */
     private final BroadcastReceiver receiver = new BroadcastReceiver() 
     {
 
         String prevState = null;
-        
+
+        /**
+         * onReceive is called when one of the listeners are triggered
+         * This specifically looks for when the phone is ringing,
+         * it will then run an asynchronous task to reverse-lookup
+         * the incoming number
+         * @param context - Main Activity Context
+         * @param intent - App Intent
+         */
         @Override
         public void onReceive(Context context, Intent intent)
         {
@@ -75,7 +85,11 @@ public class ReverseLookup extends Service
 
             prevState = state;
         }
-        
+
+        /**
+         * Lookup is an internal asynchronous task to query the reverse-lookup service
+         * for information based on the phone number provided in the call log
+         */
         class Lookup extends AsyncTask<String, Integer, JSONObject> 
         {
 
@@ -88,7 +102,14 @@ public class ReverseLookup extends Service
                 context = c;
                 phonenumber = pn;
             }
-
+            /**
+             *  doInBackground runs the code in the background (off the main
+             *  thread).  Specifically, using the API key, the method sends a
+             *  web request to whitepages.com with the phone number and retrieves
+             *  a JSONfile which later is parsed to our needs
+             * @param params - No params used
+             * @return returns the JSONObject retrieved from the website
+             */
             protected JSONObject doInBackground(String... params)
             {
                 Log.e("NUMBER!",phonenumber);
@@ -121,7 +142,13 @@ public class ReverseLookup extends Service
 
                 return null;
             }
-
+            /**
+             * Parses the data using the JSONParser class.  If the number
+             * is not from a business, the info is not used.  We decided
+             * this for ethical reasons.
+             * @param result - the JSONObject that was retrieved from the
+             *               lookup request (whitepages)
+             */
             protected void onPostExecute(JSONObject result) 
             {
 
@@ -169,6 +196,18 @@ public class ReverseLookup extends Service
         }
     };
 
+    /**
+     * PopulateInfo populates the ListedNumbers database with our newfound information
+     * to be used in the call log
+     * @param db - SQLitedatabase for ListedNumbers
+     * @param number - phone number
+     * @param name - retrieved name
+     * @param address - retrieved address
+     * @param city - retrieved city
+     * @param zip - retrieved zipcode
+     * @param state - retrieved state
+     * @param country - retrieved country
+     */
     public void PopulateInfo(Context context,String number,String name, String address, String city, String zip, String state, String country)
     {
 
@@ -187,6 +226,13 @@ public class ReverseLookup extends Service
         //db.close();
     }
 
+    /**
+     * Before requesting a reverse lookup this method checks the listed numbers database to see
+     * if it was already checked
+     * @param context - Main Activity Context
+     * @param number - number used for checking
+     * @return - returns true if it exists, false if it doesnt
+     */
     public boolean CheckKnownNumbers(Context context,String number) 
     {
 
@@ -231,7 +277,9 @@ public class ReverseLookup extends Service
         Log.e("TESTING","TEST0A: DOES NOT EXIST");
         return false;
     }
-
+    /*8
+    This method is used to register the receiver (litsener)
+     */
     @Override
     public void onCreate()
     {
@@ -243,9 +291,13 @@ public class ReverseLookup extends Service
         filter.addAction("your_action_strings"); //further more
 
         registerReceiver(receiver, filter);
-        //Toast.makeText(getApplicationContext(),"Service started", Toast.LENGTH_LONG).show();
     }
 
+    /**
+     * Not really used (i'm unfamiliar with this method, but seems required for services)
+     * @param arg0 - arguments passed
+     * @return - returns null
+     */
     @Override
     public IBinder onBind(Intent arg0)
     {

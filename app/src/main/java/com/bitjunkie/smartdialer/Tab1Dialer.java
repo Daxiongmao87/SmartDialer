@@ -1,9 +1,5 @@
 package com.bitjunkie.smartdialer;
 
-/**
- * Created by Omar on 4/4/2017.
- */
-
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -53,6 +49,26 @@ import static com.bitjunkie.smartdialer.R.id.textView;
 import static com.bitjunkie.smartdialer.R.id.txtName;
 
 
+
+/**
+ *
+ * FILE NAME: Tab1Dialer.java
+ *
+ * DESCRIPTION: This java file handles the functionality
+ * for the Dialer tab of the Smart Dialer application.
+ * This tab contains a T9-style dial pad for making calls
+ * similar to other caller apps.
+ *
+ *
+ *
+ *   DATE      BY         DESCRIPTION
+ * ========   =====       ============
+ * 4/4/2017   Omar Q.     Created the class
+ * 4/25/2017 Patrick R.   Finished the class
+ */
+
+
+
 public class Tab1Dialer extends Fragment implements View.OnClickListener{
 
     int MY_PERMISSION_REQUEST_CALL_PHONE = 0;
@@ -63,6 +79,15 @@ public class Tab1Dialer extends Fragment implements View.OnClickListener{
     ArrayList<String> numberList;
     ArrayList<String> nameList;
 
+    /**
+     * In this method click listeners are established for all buttons,
+     * number list and name list arrays used for autocomplete are initialized,
+     * and the autocomplete adapter is initialized
+     * @param inflater - Brings the layout to view
+     * @param container - the container of this fragment
+     * @param savedInstanceState - the saved state of this fragment since last pause
+     * @return - Returns View to Main Activity
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -151,10 +176,20 @@ public class Tab1Dialer extends Fragment implements View.OnClickListener{
         });
         return rootView;
     }
+
+    /**
+     * Used to set the text of a selected autocomplete item into the textview
+     * @param text - text to set
+     */
     public void SetText(String text){
         edtPhoneNo.setText(text);
         edtPhoneNo.setSelection(edtPhoneNo.getText().length());
     }
+
+    /**
+     * This is used to populate the name and number arrays for the autocomplete function
+     * to work.  It takes from both the contacts list and listed numbers database
+     */
     public void PopulateNumberList() {
         ContentResolver cr = getActivity().getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
@@ -199,21 +234,28 @@ public class Tab1Dialer extends Fragment implements View.OnClickListener{
             }
         }
         cur.close();
-        for(int i = 0; i < nameList.size();i++) {
-            Log.e("NAME LIST",nameList.get(i));
-        }
     }
+
+    /**
+     * Called when the keyboard is closed, sets the dialpad visibility to visible
+     */
     public void onKeyboardClose() {
-        Log.e("KEYBOARD","CLOSED");
         LinearLayout Layout_hello = (LinearLayout) getActivity().findViewById(R.id.hello);
         Layout_hello.setVisibility(View.VISIBLE);
     }
+    /**
+     * Called when the keyboard is opened, sets the dialpad visibility to gone
+     */
     public void onKeyboardOpen() {
         Log.e("KEYBOARD","OPEN");
         LinearLayout Layout_hello = (LinearLayout) getActivity().findViewById(R.id.hello);
         Layout_hello.setVisibility(View.GONE);
     }
 
+    /**
+     * Checks if permission to call is granted
+     * @return
+     */
     private boolean checkCallPermission(){
         String permission = "android.permission.CALL_PHONE";
         int res = getActivity().getApplicationContext().checkCallingOrSelfPermission(permission);
@@ -223,6 +265,11 @@ public class Tab1Dialer extends Fragment implements View.OnClickListener{
 
 
     }
+
+    /**
+     * Called when the fragment is in view, Layout resize listeners used to detect
+     * keyboard state are initialized,
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -233,8 +280,6 @@ public class Tab1Dialer extends Fragment implements View.OnClickListener{
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight,
                                        int oldBottom) {
-                // its possible that the layout is not complete in which case
-                // we will get all zero values for the positions, so ignore the event
                 if (left == 0 && top == 0 && right == 0 && bottom == 0) {
                     return;
                 }
@@ -244,10 +289,16 @@ public class Tab1Dialer extends Fragment implements View.OnClickListener{
                 else if(bottom < oldBottom) {
                     onKeyboardOpen();
                 }
-                // Do what you need to do with the height/width since they are now set
             }
         });
     }
+
+    /**
+     * Handles all the click listeners and their behaviors.
+     * Number pad, call button, delete button, and keyboard button behaviors
+     * handled here
+     * @param v - View related to the fragment
+     */
     @Override
     public void onClick(View v) {
 

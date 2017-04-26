@@ -19,6 +19,10 @@ import android.database.sqlite.SQLiteOpenHelper;
  * 4/25/2017 Patrick R. Finished the class
  */
 
+/**
+ * DatabaseOperator handles the creation and modification of the LISTEDNUMBERS
+ * SQLite database
+ */
 public class DatabaseOperator extends SQLiteOpenHelper 
 {
     // Gives the version number and names for the Database and tables
@@ -30,22 +34,30 @@ public class DatabaseOperator extends SQLiteOpenHelper
             + FIRST_TABLE_NAME
             + " ( _id integer primary key autoincrement, number TEXT, name TEXT, address TEXT, city TEXT, zip TEXT, state TEXt, country TEXT);";
 
-
+    /**
+     * Constructor used to pass the context of the Main Activity (currently not used)
+     * @param context - context of the Main Activity
+     */
     public DatabaseOperator (Context context) 
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    /**
+     * onCreate executes the SQL database when this class is instantiated
+     * @param db
+     */
     @Override
     public void onCreate(SQLiteDatabase db) 
     {
         db.execSQL(CREATE_FIRST_TABLE);
-        //db.close();
     }
 
 
     @Override
-    //Empty method for now, shouldn't need to be used
+    /**
+     * onUpgrade is currently not used
+     */
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) 
     {
         
