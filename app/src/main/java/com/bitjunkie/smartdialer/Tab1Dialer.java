@@ -6,8 +6,11 @@ package com.bitjunkie.smartdialer;
 
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -28,10 +31,14 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,7 +46,11 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 
 import java.util.ArrayList;
 
+import static android.R.attr.name;
 import static android.content.ContentValues.TAG;
+import static com.bitjunkie.smartdialer.R.id.Contacts;
+import static com.bitjunkie.smartdialer.R.id.textView;
+import static com.bitjunkie.smartdialer.R.id.txtName;
 
 
 public class Tab1Dialer extends Fragment implements View.OnClickListener{
@@ -51,6 +62,7 @@ public class Tab1Dialer extends Fragment implements View.OnClickListener{
     ImageButton btnDelete;
     ArrayList<String> numberList;
     ArrayList<String> nameList;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -60,6 +72,7 @@ public class Tab1Dialer extends Fragment implements View.OnClickListener{
         View rootView = inflater.inflate(R.layout.tab1dialer, container, false);
         numberList = new ArrayList<>();
         nameList = new ArrayList<>();
+        PopulateNumberList();
         edtPhoneNo = (EditText) rootView.findViewById(R.id.edtPhoneNumber);
         //Button listeners
         btnOne = (Button) rootView.findViewById(R.id.btnOne);
@@ -101,9 +114,10 @@ public class Tab1Dialer extends Fragment implements View.OnClickListener{
                 int pos = edtPhoneNo.getSelectionStart();
                 if (phoneNo != null && phoneNo.length() > 0) {
                     phoneNo = phoneNo.substring(0,pos-1)+ phoneNo.substring(pos,phoneNo.length());
+                    edtPhoneNo.setText(phoneNo);
+                    edtPhoneNo.setSelection(pos-1);
                 }
-                edtPhoneNo.setText(phoneNo);
-                edtPhoneNo.setSelection(pos-1);
+
             }
         });
         //FOR LONG PRESS
@@ -115,12 +129,80 @@ public class Tab1Dialer extends Fragment implements View.OnClickListener{
                 return false;
             }
         });
-        Log.e("TESTONRESUME","RESUME");
-        SQLiteDatabase db = dbo.getWritableDatabase();
 
+        String[] NAMES = new String[nameList.size()];
+        for(int i = 0; i < nameList.size(); i++) {
+            NAMES[i] = nameList.get(i);
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(rootView.getContext(),
+                android.R.layout.simple_dropdown_item_1line, nameList);
+        AutoCompleteTextView textView = (AutoCompleteTextView) rootView.findViewById(R.id.edtPhoneNumber);
+        textView.setThreshold(2);
+        textView.setDropDownHeight(320);
+        textView.setAdapter(adapter);
+        textView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View arg1, int pos,
+                                    long id) {
+                SetText(numberList.get(pos));
+
+            }
+        });
         return rootView;
     }
-
+    public void SetText(String text){
+        edtPhoneNo.setText(text);
+        edtPhoneNo.setSelection(edtPhoneNo.getText().length());
+    }
+    public void PopulateNumberList() {
+        ContentResolver cr = getActivity().getContentResolver();
+        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
+                null, null, null, null);
+        Cursor cur2 = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                null, null, null, null);
+        if(cur.getCount() > 0) {
+            String name = "";
+            String number = "";
+            cur.moveToFirst();
+            cur2.moveToFirst();
+            while (!cur.isAfterLast() && !cur2.isAfterLast()) {
+                if (cur.getInt(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
+                    name = cur.getString(cur.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME));
+                    number = cur2.getString(cur2.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                    nameList.add(name + " " + number);
+                    numberList.add(number);
+                }
+                cur.moveToNext();
+                cur2.moveToNext();
+            }
+        }
+        cur.close();
+        cur2.close();
+        DatabaseOperator dbo = new DatabaseOperator(getActivity());
+        SQLiteDatabase db = dbo.getWritableDatabase();
+        cur = db.rawQuery("select * from LISTEDNUMBERS",null);
+        cur.moveToFirst();
+        if(cur.getCount() > 0) {
+            while(!cur.isAfterLast()) {
+                String name = cur.getString(cur.getColumnIndex("name"));
+                String number = cur.getString(cur.getColumnIndex("number"));
+                if(!name.equals("")) {
+                    nameList.add(name + " " + number);
+                    numberList.add(number);
+                }
+                else {
+                    nameList.add(number);
+                    numberList.add(number);
+                }
+                cur.moveToNext();
+            }
+        }
+        cur.close();
+        for(int i = 0; i < nameList.size();i++) {
+            Log.e("NAME LIST",nameList.get(i));
+        }
+    }
     public void onKeyboardClose() {
         Log.e("KEYBOARD","CLOSED");
         LinearLayout Layout_hello = (LinearLayout) getActivity().findViewById(R.id.hello);
