@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(int position) {
             //Returning the current tabs
+            Log.e("FRAGMENT","POS: " + position);
            switch(position) {
                case 0:
                    Fragment frag = new Tab1Dialer();

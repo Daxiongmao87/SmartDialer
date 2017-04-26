@@ -63,18 +63,24 @@ import static android.text.InputType.TYPE_CLASS_PHONE;
 public class Tab2Log extends Fragment{
     LinearLayout logList;
     ArrayList<LinearLayout> logItems;
+    ArrayList<String> logIDs;
     boolean bIncoming = true;
     boolean bOutgoing = true;
     boolean bMissed = true;
     DatabaseOperator dbo;
 
     @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        dbo = new DatabaseOperator(getActivity());
+    }
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.tab2log, container, false);
         logList = (LinearLayout) rootView.findViewById(R.id.logList);
         logItems = new ArrayList<>();
-
+        logIDs = new ArrayList<>();
         ToggleButton btnOutgoing = (ToggleButton) rootView.findViewById(R.id.btnOutgoing);
         btnOutgoing.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -97,9 +103,9 @@ public class Tab2Log extends Fragment{
             }
         });
         //Check if our ListedNumbers database exists, if not, create it
-        dbo = new DatabaseOperator(getActivity());
-        SQLiteDatabase db = dbo.getWritableDatabase();
-        getCallDetails(db);
+
+        //SQLiteDatabase db = dbo.getWritableDatabase();
+        //getCallDetails(db);
         return rootView;
     }
     public void getCallDetails(SQLiteDatabase db) {
@@ -108,10 +114,11 @@ public class Tab2Log extends Fragment{
             }
         StringBuffer sb = new StringBuffer();
         Cursor managedCursor = getActivity().getContentResolver().query(CallLog.Calls.CONTENT_URI, null, null, null, null);
-        int number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER);
-        int type = managedCursor.getColumnIndex(CallLog.Calls.TYPE);
+            int number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER);
+            int type = managedCursor.getColumnIndex(CallLog.Calls.TYPE);
         int date = managedCursor.getColumnIndex(CallLog.Calls.DATE);
         int duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION);
+        int id = managedCursor.getColumnIndex(CallLog.Calls._ID);
 
         while (managedCursor.moveToNext()) {
             //View v = LayoutInflater.from(this.getActivity()).inflate(R.layout.calllog, null);
@@ -123,6 +130,7 @@ public class Tab2Log extends Fragment{
             Date callDayTime = new Date(Long.valueOf(callDate));
             String callDuration = managedCursor.getString(duration);
             String dir = null;
+            String call_id = managedCursor.getString(id);
             int dircode = Integer.parseInt(callType);
             switch (dircode) {
                 case CallLog.Calls.OUTGOING_TYPE:
@@ -135,12 +143,82 @@ public class Tab2Log extends Fragment{
                     dir = "Missed";
                     break;
             }
-            createLogItem(db, phNumber,callType,callDayTime,callDuration,dir);
+            for(int i = 0; i < logIDs.size(); i++) {
+                if(logIDs.get(i) == call_id) {
+                    updateLogItem(logItems.get(i),db, phNumber,callType,callDayTime,callDuration,dir);
+                    return;
+                }
+            }
+            createLogItem(db, phNumber,callType,callDayTime,callDuration,dir, call_id);
+        }
+    }
+    //IF the log item exists, update it
+    public void updateLogItem(LinearLayout logItem, SQLiteDatabase dbase, String phNumber, String callType, Date callDayTime, String callDuration, String dir){
+        final SQLiteDatabase db = dbase;
+        final String number = phNumber;
+        String contactName = FindContactName(getActivity(),phNumber);
+        LinearLayout linBase = logItem;
+        ImageView imgPhoto = (ImageView) linBase.getChildAt(0);
+        LinearLayout linCaller = (LinearLayout) linBase.getChildAt(1);
+        LinearLayout linTimeInfo = (LinearLayout) linBase.getChildAt(2);
+        TextView txtName = (TextView) linCaller.getChildAt(0);
+        TextView txtNumber = (TextView) linCaller.getChildAt(1);
+        TextView txtState = (TextView) linTimeInfo.getChildAt(0);
+        TextView txtTime = (TextView) linTimeInfo.getChildAt(1);
+        String callDate = Integer.toString(callDayTime.getDay()) + "/" + Integer.toString(callDayTime.getMonth()) + "/" + Integer.toString(callDayTime.getYear()).substring(1,3);
+        if(contactName == null) {
+            //if contactName = null, check if its in our listednumbers database
+            String[] projection = {
+                    "name",
+                    "address",
+                    "city",
+                    "zip",
+                    "state",
+                    "city"
+            };
+            String selection = "number = ?";
+            String[] selectionArgs = { number };
+            String sortOrder = "number DESC";
+            Cursor cursor = db.query(
+                    "LISTEDNUMBERS",
+                    projection,
+                    selection,
+                    selectionArgs,
+                    null,
+                    null,
+                    sortOrder
+            );
+            Log.e("TESTING","DB TEST: Checking " + number);
+            if(cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                txtName.setText(cursor.getString(0));
+                //Log.e("TESTING","DB TEST: Found! " + number + ": " + cursor.getString(0));
+            } else{
+                txtName.setVisibility(View.GONE);
+                //Log.e("TESTING","DB TEST: NOT FOUND :( " + number);
+            }
+            cursor.close();
+            //txtName.setVisibility(View.GONE);
+        }
+        else {
+            txtName.setText(contactName);
+        }
+        txtNumber.setInputType(TYPE_CLASS_PHONE);
+        txtNumber.setText(phNumber);
+        txtState.setText(dir);
+
+        txtTime.setText(callDate);
+
+        //imgPhoto.setImageURI(null);
+        //imgPhoto.setImageDrawable(Drawable.createFromPath(photoUri.getPath()));
+        imgPhoto.setImageResource(R.drawable.default_photo);
+        String contactPhotoURI = FindContactPhoto(getActivity(),phNumber);
+        if(contactPhotoURI != null) {
+            imgPhoto.setImageURI(Uri.parse(contactPhotoURI));
         }
     }
     //Programmatically add call log item
-
-    public void createLogItem(SQLiteDatabase dbase, String phNumber, String callType, Date callDayTime, String callDuration, String dir){
+    public void createLogItem(SQLiteDatabase dbase, String phNumber, String callType, Date callDayTime, String callDuration, String dir, String id){
         final SQLiteDatabase db = dbase;
         final String number = phNumber;
         String contactName = FindContactName(getActivity(),phNumber);
@@ -156,7 +234,6 @@ public class Tab2Log extends Fragment{
         String callDate = Integer.toString(callDayTime.getDay()) + "/" + Integer.toString(callDayTime.getMonth()) + "/" + Integer.toString(callDayTime.getYear()).substring(1,3);
         if(contactName == null) {
             //if contactName = null, check if its in our listednumbers database
-            dbo = new DatabaseOperator(getActivity());
             String[] projection = {
                     "name",
                     "address",
@@ -264,6 +341,7 @@ public class Tab2Log extends Fragment{
             }
         });
         logItems.add(linBase);
+        logIDs.add(id);
         //LayoutInflater.from(getActivity()).inflate(linBase, null);
     }
     class Lookup extends AsyncTask<String, Integer, JSONObject> {
@@ -296,31 +374,33 @@ public class Tab2Log extends Fragment{
             return null;
         }
         protected void onPostExecute(JSONObject result) {
-            try {
-                String name = result.getJSONArray("belongs_to").getJSONObject(0).getString("name");
-                String address = "";
-                String city = "";
-                String zip = "";
-                String state = "";
-                String country = "";
-                if(result.get("is_commercial").equals("true")) {
-                    if(result.getJSONArray("belongs_to").getJSONObject(0).getString("location_type").equals("Address")){
-                        address = result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_1");
-                        if(result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_2") != null) {
-                            address += ", " + result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_2");
-                            city = result.getJSONArray("belongs_to").getJSONObject(0).getString("city");
-                            zip = result.getJSONArray("belongs_to").getJSONObject(0).getString("postal_code");
-                            state = result.getJSONArray("belongs_to").getJSONObject(0).getString("state_code");
-                            country = result.getJSONArray("belongs_to").getJSONObject(0).getString("countrey_code");
+            Log.e("TESTJSON",result.toString());
+            if(result != null) {
+
+                try {
+                    String name = result.getJSONArray("belongs_to").getJSONObject(0).getString("name");
+                    String address = "";
+                    String city = "";
+                    String zip = "";
+                    String state = "";
+                    String country = "";
+                    if (result.get("is_commercial").equals("true")) {
+                        if (result.getJSONArray("belongs_to").getJSONObject(0).getString("location_type").equals("Address")) {
+                            address = result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_1");
+                            if (result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_2") != null) {
+                                address += ", " + result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_2");
+                                city = result.getJSONArray("belongs_to").getJSONObject(0).getString("city");
+                                zip = result.getJSONArray("belongs_to").getJSONObject(0).getString("postal_code");
+                                state = result.getJSONArray("belongs_to").getJSONObject(0).getString("state_code");
+                                country = result.getJSONArray("belongs_to").getJSONObject(0).getString("countrey_code");
+                            }
                         }
                     }
+                    PopulateInfo(db, phonenumber, name, address, city, zip, state, country);
+                } catch (org.json.JSONException e) {
+                    Log.e("JSON", "JSON Error: " + e.toString());
                 }
-                PopulateInfo(db, phonenumber,name,address,city,zip,state,country);
             }
-            catch (org.json.JSONException e) {
-                Log.e("JSON","JSON Error: " + e.toString());
-            }
-
         }
     }
     public void PopulateInfo(SQLiteDatabase db, String number,String name, String address, String city, String zip, String state, String country){
@@ -354,8 +434,23 @@ public class Tab2Log extends Fragment{
         return contactName;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        logList.removeAllViews();
+    }
 
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.e("TESTONRESUME","RESUME");
+        SQLiteDatabase db = dbo.getWritableDatabase();
+        getCallDetails(db);
+    }
+    public void onFocused(DatabaseOperator dbo) {
+        SQLiteDatabase db = this.dbo.getWritableDatabase();
+        getCallDetails(db);
+    }
     public void FilterLog() {
         for(int i = 0; i < logItems.size(); i++) {
             LinearLayout infoSection = (LinearLayout) logItems.get(i).getChildAt(2);
