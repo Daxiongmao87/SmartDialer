@@ -1,9 +1,5 @@
 package com.bitjunkie.smartdialer;
 
-/**
- * Created by Omar on 4/4/2017.
- */
-
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -61,24 +57,21 @@ import static android.R.attr.gravity;
 import static android.text.InputType.TYPE_CLASS_PHONE;
 
 /**
- *  
+ *
  * FILE NAME: Tab2Log.java
- * 
+ *
  * DESCRIPTION: This java file handles the functionality for
  * the Call Log tab of the Smart Dialer application. This tab
  * stores and organizes all calls received and made by the user's
- * Android mobile device. 
+ * Android mobile device.
  *
  *   DATE       BY      DESCRIPTION
  * ======== ========== =============
- * 4/4/2017 Omar Q. Created the class
- * 
+ * 4/4/2017 Omar Q.     Created the class
+ * 4/25/2017 Patrick R. Finished the class
  */
 
-
-public class Tab2Log extends Fragment
-{
-
+public class Tab2Log extends Fragment{
     LinearLayout logList;
     ArrayList<LinearLayout> logItems;
     ArrayList<String> logIDs;
@@ -94,73 +87,42 @@ public class Tab2Log extends Fragment
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) 
-    {
-
+                             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.tab2log, container, false);
         logList = (LinearLayout) rootView.findViewById(R.id.logList);
         logItems = new ArrayList<>();
         logIDs = new ArrayList<>();
         ToggleButton btnOutgoing = (ToggleButton) rootView.findViewById(R.id.btnOutgoing);
-
-        btnOutgoing.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() 
-        {
-
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) 
-            {
-
+        btnOutgoing.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 bOutgoing = isChecked;
                 FilterLog();
             }
         });
-
         ToggleButton btnIncoming = (ToggleButton) rootView.findViewById(R.id.btnIncoming);
-        btnIncoming.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() 
-        {
-
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) 
-            {
-
+        btnIncoming.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 bIncoming = isChecked;
                 FilterLog();
             }
         });
-
         ToggleButton btnMissed = (ToggleButton) rootView.findViewById(R.id.btnMissed);
-        btnMissed.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() 
-        {
-
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-            {
-
+        btnMissed.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 bMissed = isChecked;
                 FilterLog();
             }
         });
-<<<<<<< HEAD
         //Check if our ListedNumbers database exists, if not, create it
 
         //SQLiteDatabase db = dbo.getWritableDatabase();
         //getCallDetails(db);
-=======
-
-        //Check if our ListedNumbers database exists, if not, it creates one.
-        dbo = new DatabaseOperator(getActivity());
-        SQLiteDatabase db = dbo.getWritableDatabase();
-        getCallDetails(db);
->>>>>>> 37441869f42857ad133431f1c6e777c54a9cb85b
         return rootView;
     }
-
-    public void getCallDetails(SQLiteDatabase db) 
-    {
-
-        if(ContextCompat.checkSelfPermission(this.getActivity(),
-                Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) 
-        {
-            
-        }
-
+    public void getCallDetails(SQLiteDatabase db) {
+        if( ContextCompat.checkSelfPermission(this.getActivity(),
+                Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            }
         StringBuffer sb = new StringBuffer();
         Cursor managedCursor = getActivity().getContentResolver().query(CallLog.Calls.CONTENT_URI, null, null, null, null);
             int number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER);
@@ -169,8 +131,7 @@ public class Tab2Log extends Fragment
         int duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION);
         int id = managedCursor.getColumnIndex(CallLog.Calls._ID);
 
-        while (managedCursor.moveToNext()) 
-        {
+        while (managedCursor.moveToNext()) {
             //View v = LayoutInflater.from(this.getActivity()).inflate(R.layout.calllog, null);
             //logList.addView(v);
 
@@ -182,8 +143,7 @@ public class Tab2Log extends Fragment
             String dir = null;
             String call_id = managedCursor.getString(id);
             int dircode = Integer.parseInt(callType);
-            switch (dircode) 
-            {
+            switch (dircode) {
                 case CallLog.Calls.OUTGOING_TYPE:
                     dir = "Outgoing";
                     break;
@@ -194,11 +154,10 @@ public class Tab2Log extends Fragment
                     dir = "Missed";
                     break;
             }
-<<<<<<< HEAD
             for(int i = 0; i < logIDs.size(); i++) {
                 if(logIDs.get(i) == call_id) {
                     updateLogItem(logItems.get(i),db, phNumber,callType,callDayTime,callDuration,dir);
-                    return;
+                    break;
                 }
             }
             createLogItem(db, phNumber,callType,callDayTime,callDuration,dir, call_id);
@@ -240,7 +199,7 @@ public class Tab2Log extends Fragment
                     null,
                     sortOrder
             );
-            Log.e("TESTING","DB TEST: Checking " + number);
+           // Log.e("TESTING","DB TEST: Checking " + number);
             if(cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 txtName.setText(cursor.getString(0));
@@ -271,17 +230,6 @@ public class Tab2Log extends Fragment
     }
     //Programmatically add call log item
     public void createLogItem(SQLiteDatabase dbase, String phNumber, String callType, Date callDayTime, String callDuration, String dir, String id){
-=======
-
-            createLogItem(db, phNumber,callType,callDayTime,callDuration,dir);
-        }
-    }
-
-    //Programmatically adds call log items
-    public void createLogItem(SQLiteDatabase dbase, String phNumber, String callType, Date callDayTime, String callDuration, String dir)
-    {
-
->>>>>>> 37441869f42857ad133431f1c6e777c54a9cb85b
         final SQLiteDatabase db = dbase;
         final String number = phNumber;
         String contactName = FindContactName(getActivity(),phNumber);
@@ -295,17 +243,9 @@ public class Tab2Log extends Fragment
         TextView txtTime = new TextView(getActivity());
 
         String callDate = Integer.toString(callDayTime.getDay()) + "/" + Integer.toString(callDayTime.getMonth()) + "/" + Integer.toString(callDayTime.getYear()).substring(1,3);
-        
-        if(contactName == null) 
-        {
+        if(contactName == null) {
             //if contactName = null, check if its in our listednumbers database
-<<<<<<< HEAD
             String[] projection = {
-=======
-            dbo = new DatabaseOperator(getActivity());
-            String[] projection = 
-            {
->>>>>>> 37441869f42857ad133431f1c6e777c54a9cb85b
                     "name",
                     "address",
                     "city",
@@ -313,7 +253,6 @@ public class Tab2Log extends Fragment
                     "state",
                     "city"
             };
-
             String selection = "number = ?";
             String[] selectionArgs = { number };
             String sortOrder = "number DESC";
@@ -326,30 +265,21 @@ public class Tab2Log extends Fragment
                     null,
                     sortOrder
             );
-
-            Log.e("TESTING","DB TEST: Checking " + number);
-            
-            if(cursor.getCount() > 0)
-            {
+            //\Log.e("TESTING","DB TEST: Checking " + number);
+            if(cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 txtName.setText(cursor.getString(0));
-                Log.e("TESTING","DB TEST: Found! " + number + ": " + cursor.getString(0));
-            } 
-
-            else
-            {
+                //Log.e("TESTING","DB TEST: Found! " + number + ": " + cursor.getString(0));
+            } else{
                 txtName.setVisibility(View.GONE);
-                Log.e("TESTING","DB TEST: NOT FOUND :( " + number);
+              //  Log.e("TESTING","DB TEST: NOT FOUND :( " + number);
             }
             cursor.close();
             //txtName.setVisibility(View.GONE);
         }
-
-        else 
-        {
+        else {
             txtName.setText(contactName);
         }
-
         txtNumber.setInputType(TYPE_CLASS_PHONE);
         txtNumber.setText(phNumber);
         txtState.setText(dir);
@@ -360,13 +290,9 @@ public class Tab2Log extends Fragment
         //imgPhoto.setImageDrawable(Drawable.createFromPath(photoUri.getPath()));
         imgPhoto.setImageResource(R.drawable.default_photo);
         String contactPhotoURI = FindContactPhoto(getActivity(),phNumber);
-        
-        if(contactPhotoURI != null) 
-        {
-
+        if(contactPhotoURI != null) {
             imgPhoto.setImageURI(Uri.parse(contactPhotoURI));
         }
-
         linBase.addView(imgPhoto);
         linBase.addView(linCaller);
         linBase.addView(linTimeInfo);
@@ -407,30 +333,21 @@ public class Tab2Log extends Fragment
         linBase.getLayoutParams().height = dpToPx(64);
         linBase.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
         linBase.setClickable(true);
-        linBase.setOnClickListener(new View.OnClickListener() 
-        {
-
+        linBase.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) 
-            {
-
+            public void onClick(View v) {
                 //TabHost host = (TabHost) getActivity().findViewById(android.R.id.tabhost);
                 //host.setCurrentTab(0);
                 String permission = "android.permission.CALL_PHONE";
 
                 int res = getActivity().getApplicationContext().checkCallingOrSelfPermission(permission);
-                
-                if (res == PackageManager.PERMISSION_GRANTED) 
-                {
-
+                if (res == PackageManager.PERMISSION_GRANTED) {
                     Lookup lu = new Lookup(db,getActivity(),number);
                     lu.execute();
                     startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+number.trim())));
                 }
+                else {
 
-                else 
-                {
-                    // empty
                 }
             }
         });
@@ -438,32 +355,19 @@ public class Tab2Log extends Fragment
         logIDs.add(id);
         //LayoutInflater.from(getActivity()).inflate(linBase, null);
     }
-
-    class Lookup extends AsyncTask<String, Integer, JSONObject> 
-    {
-
+    class Lookup extends AsyncTask<String, Integer, JSONObject> {
         private Context context;
         private String phonenumber;
         SQLiteDatabase db;
-
-        public Lookup(SQLiteDatabase dbase, Context c, String pn) 
-        {
-
+        public Lookup(SQLiteDatabase dbase, Context c, String pn) {
             context = c;
             phonenumber = pn;
             db = dbase;
         }
-
-        protected JSONObject doInBackground(String... params)
-        {
-
+        protected JSONObject doInBackground(String... params){
             Log.e("NUMBER!",phonenumber);
-            if(phonenumber !=null) 
-            {
-
-                try
-                {
-
+            if(phonenumber !=null) {
+                try {
                     String key = "d406a59b6c444b669f42f21d92306923";
                     String url = "https://proapi.whitepages.com/3.0/phone.json?api_key=" + key + "&phone=" + URLEncoder.encode(phonenumber,"UTF-8").toString();
                     JSONParser jsonParser = new JSONParser();
@@ -471,20 +375,15 @@ public class Tab2Log extends Fragment
                     Log.e("TESTING","TEST2: " + payload.getJSONArray("belongs_to").getJSONObject(0).getString("name"));
                     return payload;
                 }
-
-                catch (org.json.JSONException e) 
-                {
+                catch (org.json.JSONException e) {
                     Log.e("JSON","JSON Error: " + e.toString());
                 }
-
-                catch (java.io.UnsupportedEncodingException e) 
-                {
+                catch (java.io.UnsupportedEncodingException e) {
                     Log.e("URL","Encoding Error: " + e.toString());
                 }
             }
             return null;
         }
-<<<<<<< HEAD
         protected void onPostExecute(JSONObject result) {
             Log.e("TESTJSON",result.toString());
             if(result != null) {
@@ -506,38 +405,6 @@ public class Tab2Log extends Fragment
                                 state = result.getJSONArray("belongs_to").getJSONObject(0).getString("state_code");
                                 country = result.getJSONArray("belongs_to").getJSONObject(0).getString("countrey_code");
                             }
-=======
-
-        protected void onPostExecute(JSONObject result) 
-        {
-            
-            try 
-            {
-
-                String name = result.getJSONArray("belongs_to").getJSONObject(0).getString("name");
-                String address = "";
-                String city = "";
-                String zip = "";
-                String state = "";
-                String country = "";
-
-                if(result.get("is_commercial").equals("true")) 
-                {
-
-                    if(result.getJSONArray("belongs_to").getJSONObject(0).getString("location_type").equals("Address"))
-                    {
-
-                        address = result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_1");
-
-                        if(result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_2") != null) 
-                        {
-
-                            address += ", " + result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_2");
-                            city = result.getJSONArray("belongs_to").getJSONObject(0).getString("city");
-                            zip = result.getJSONArray("belongs_to").getJSONObject(0).getString("postal_code");
-                            state = result.getJSONArray("belongs_to").getJSONObject(0).getString("state_code");
-                            country = result.getJSONArray("belongs_to").getJSONObject(0).getString("countrey_code");
->>>>>>> 37441869f42857ad133431f1c6e777c54a9cb85b
                         }
                     }
                     PopulateInfo(db, phonenumber, name, address, city, zip, state, country);
@@ -545,20 +412,9 @@ public class Tab2Log extends Fragment
                     Log.e("JSON", "JSON Error: " + e.toString());
                 }
             }
-<<<<<<< HEAD
-=======
-
-            catch (org.json.JSONException e) 
-            {
-                Log.e("JSON","JSON Error: " + e.toString());
-            }
-
->>>>>>> 37441869f42857ad133431f1c6e777c54a9cb85b
         }
     }
-
-    public void PopulateInfo(SQLiteDatabase db, String number,String name, String address, String city, String zip, String state, String country)
-    {
+    public void PopulateInfo(SQLiteDatabase db, String number,String name, String address, String city, String zip, String state, String country){
 
         ContentValues values = new ContentValues();
         values.put("number",number);
@@ -572,29 +428,18 @@ public class Tab2Log extends Fragment
         //db.close();
         ///dbo.close();
     }
-
-    public static String FindContactName(Context context, String phoneNumber) 
-    {
-
+    public static String FindContactName(Context context, String phoneNumber) {
         ContentResolver cr = context.getContentResolver();
         Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode("tel:"+phoneNumber));
         Cursor cursor = cr.query(uri, new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME}, null, null, null);
-        
-        if (cursor == null) 
-        {
-
+        if (cursor == null) {
             return null;
         }
-
         String contactName = null;
-        
-        if(cursor.moveToFirst()) 
-        {
+        if(cursor.moveToFirst()) {
             contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME));
         }
-        
-        if(cursor != null && !cursor.isClosed()) 
-        {
+        if(cursor != null && !cursor.isClosed()) {
             cursor.close();
         }
         return contactName;
@@ -606,7 +451,6 @@ public class Tab2Log extends Fragment
         logList.removeAllViews();
     }
 
-<<<<<<< HEAD
     @Override
     public void onResume() {
         super.onResume();
@@ -614,74 +458,38 @@ public class Tab2Log extends Fragment
         SQLiteDatabase db = dbo.getWritableDatabase();
         getCallDetails(db);
     }
-    public void onFocused(DatabaseOperator dbo) {
-        SQLiteDatabase db = this.dbo.getWritableDatabase();
-        getCallDetails(db);
-    }
     public void FilterLog() {
         for(int i = 0; i < logItems.size(); i++) {
-=======
-    public void FilterLog() 
-    {
-
-        for(int i = 0; i < logItems.size(); i++) 
-        {
->>>>>>> 37441869f42857ad133431f1c6e777c54a9cb85b
             LinearLayout infoSection = (LinearLayout) logItems.get(i).getChildAt(2);
             TextView callTypeSection = (TextView) infoSection.getChildAt(0);
             String callType = callTypeSection.getText().toString();
-            
             if(callType.equals("Outgoing"))
-            {
                 logItems.get(i).setVisibility((bOutgoing ? View.VISIBLE : View.GONE));
-            }
-
             else if(callType.equals("Incoming"))
-            { 
                 logItems.get(i).setVisibility((bIncoming ? View.VISIBLE : View.GONE));
-            }
-
             else
-            {
                 logItems.get(i).setVisibility((bMissed ? View.VISIBLE : View.GONE));
-            }
         }
     }
 
-    // Searches the contacts database in the user's phone for a photo to add to the given contact.
-    public static String FindContactPhoto(Context context, String phoneNumber) 
-    {
-
+    public static String FindContactPhoto(Context context, String phoneNumber) {
         ContentResolver cr = context.getContentResolver();
         Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode("tel:"+phoneNumber));
         Cursor cursor = cr.query(uri, new String[]{ContactsContract.PhoneLookup.PHOTO_THUMBNAIL_URI}, null, null, null);
-        
-        if (cursor == null) 
-        {
-
+        if (cursor == null) {
             return null;
         }
-
         String contactPhoto = null;
-        
-        if(cursor.moveToFirst()) 
-        {
-
+        if(cursor.moveToFirst()) {
             contactPhoto = cursor.getString(cursor.getColumnIndex(ContactsContract.PhoneLookup.PHOTO_THUMBNAIL_URI));
         }
-        
-        if(cursor != null && !cursor.isClosed()) 
-        {
-
+        if(cursor != null && !cursor.isClosed()) {
             cursor.close();
         }
-
         return contactPhoto;
     }
 
-    public int dpToPx(int dp) 
-    {
-        
+    public int dpToPx(int dp) {
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
         return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }

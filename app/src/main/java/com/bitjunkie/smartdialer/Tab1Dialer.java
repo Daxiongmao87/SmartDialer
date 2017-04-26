@@ -7,6 +7,7 @@ package com.bitjunkie.smartdialer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -36,6 +37,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 
+import java.util.ArrayList;
+
 import static android.content.ContentValues.TAG;
 
 
@@ -46,7 +49,8 @@ public class Tab1Dialer extends Fragment implements View.OnClickListener{
 
     Button btnOne, btnTwo, btnThree, btnFour, btnFive, btnSix, btnSeven, btnEight, btnNine, btnZero, btnAsterisk,btnHash,btnClear,btnCall;
     ImageButton btnDelete;
-
+    ArrayList<String> numberList;
+    ArrayList<String> nameList;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -54,9 +58,10 @@ public class Tab1Dialer extends Fragment implements View.OnClickListener{
 
 
         View rootView = inflater.inflate(R.layout.tab1dialer, container, false);
+        numberList = new ArrayList<>();
+        nameList = new ArrayList<>();
         edtPhoneNo = (EditText) rootView.findViewById(R.id.edtPhoneNumber);
         //Button listeners
-
         btnOne = (Button) rootView.findViewById(R.id.btnOne);
         btnOne.setOnClickListener(this);
         btnTwo = (Button) rootView.findViewById(R.id.btnTwo);
@@ -110,6 +115,8 @@ public class Tab1Dialer extends Fragment implements View.OnClickListener{
                 return false;
             }
         });
+        Log.e("TESTONRESUME","RESUME");
+        SQLiteDatabase db = dbo.getWritableDatabase();
 
         return rootView;
     }

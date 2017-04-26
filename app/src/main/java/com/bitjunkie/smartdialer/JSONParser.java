@@ -25,7 +25,7 @@ import java.util.List;
  *   DATE       BY      DESCRIPTION
  * ======== ========== =============
  * 4/20/2017 Patrick R. Created the class
- * 
+ * 4/25/2017 Patrick R. Finished the Class
  */
 
 public class JSONParser 

@@ -16,7 +16,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  *   DATE       BY      DESCRIPTION
  * ======== ========== =============
  * 4/24/2017 Patrick R. Created the class
- * 
+ * 4/25/2017 Patrick R. Finished the class
  */
 
 public class DatabaseOperator extends SQLiteOpenHelper 
