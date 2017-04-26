@@ -19,6 +19,7 @@ import android.os.AsyncTask;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.provider.Telephony;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -116,12 +117,19 @@ public class Tab2Log extends Fragment{
         //Check if our ListedNumbers database exists, if not, create it
 
         //SQLiteDatabase db = dbo.getWritableDatabase();
-        //getCallDetails(db);
+        //getContactDetails(db);
         return rootView;
     }
+    int MY_PERMISSION_REQUEST_READ_CALL_LOG = 1;
+    int MY_PERMISSION_REQUEST_CALL_PHONE = 4;
     public void getCallDetails(SQLiteDatabase db) {
         if( ContextCompat.checkSelfPermission(this.getActivity(),
                 Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_CALL_LOG},MY_PERMISSION_REQUEST_READ_CALL_LOG);
+            if( ContextCompat.checkSelfPermission(this.getActivity(),
+                    Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
             }
         StringBuffer sb = new StringBuffer();
         Cursor managedCursor = getActivity().getContentResolver().query(CallLog.Calls.CONTENT_URI, null, null, null, null);
@@ -347,7 +355,10 @@ public class Tab2Log extends Fragment{
                     startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+number.trim())));
                 }
                 else {
-
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CALL_PHONE},MY_PERMISSION_REQUEST_CALL_PHONE);
+                    if (res == PackageManager.PERMISSION_GRANTED) {
+                        startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+number.trim())));
+                    }
                 }
             }
         });
