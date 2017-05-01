@@ -10,7 +10,7 @@
     tools:context="com.example.omar.smartdialer.MainActivity">
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floatingActionButton3"
+        android:id="@+id/fbAddContact"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/contactScrollView"
@@ -18,7 +18,7 @@
         android:layout_centerHorizontal="false"
         android:layout_centerInParent="false"
         android:clickable="true"
-        android:onClick="AddContact"
+        app:backgroundTint="@color/colorDarkPrimary"
         app:fabSize="mini"
         app:srcCompat="@android:drawable/ic_menu_add" />
 

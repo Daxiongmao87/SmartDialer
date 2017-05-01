@@ -382,14 +382,34 @@ public class Tab2Log extends Fragment{
                 if (res == PackageManager.PERMISSION_GRANTED) {
                     Lookup lu = new Lookup(db,getActivity(),number);
                     lu.execute();
+                    Log.e("TEST","CHECKING NUMBER");
                     startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+number.trim())));
                 }
                 else {
                     ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CALL_PHONE},MY_PERMISSION_REQUEST_CALL_PHONE);
                     if (res == PackageManager.PERMISSION_GRANTED) {
+                        Lookup lu = new Lookup(db,getActivity(),number);
+                        lu.execute();
+                        Log.e("TEST","CHECKING NUMBER");
                         startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+number.trim())));
                     }
                 }
+            }
+        });
+        final String passName = contactName;
+        final String passNumber = phNumber;
+        linBase.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Intent intent = new Intent(ContactsContract.Intents.Insert.ACTION);
+                intent.setType(ContactsContract.RawContacts.CONTENT_TYPE);
+                intent.putExtra(ContactsContract.Intents.Insert.PHONE, passNumber)
+                        .putExtra(ContactsContract.Intents.Insert.PHONE_TYPE,ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
+                        .putExtra(ContactsContract.Intents.Insert.NAME, passName)
+                        .putExtra(ContactsContract.Data.MIMETYPE,ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE);
+
+                startActivity(intent);
+                return true;
             }
         });
         logItems.add(linBase);
@@ -421,6 +441,7 @@ public class Tab2Log extends Fragment{
         protected JSONObject doInBackground(String... params){
             if(phonenumber !=null) {
                 try {
+                    Log.e("TEST","CHECKING NUMBER");
                     String key = "d406a59b6c444b669f42f21d92306923";
                     String url = "https://proapi.whitepages.com/3.0/phone.json?api_key=" + key + "&phone=" + URLEncoder.encode(phonenumber,"UTF-8").toString();
                     JSONParser jsonParser = new JSONParser();
@@ -455,17 +476,18 @@ public class Tab2Log extends Fragment{
                         city = "";
                         zip = "";
                         state = "";
-                        country = "";
-                        if (result.getJSONArray("belongs_to").getJSONObject(0).getString("location_type").equals("Address")) {
-                            address = result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_1");
-                            if (result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_2") != null) {
-                                address += ", " + result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_2");
-                                city = result.getJSONArray("belongs_to").getJSONObject(0).getString("city");
-                                zip = result.getJSONArray("belongs_to").getJSONObject(0).getString("postal_code");
-                                state = result.getJSONArray("belongs_to").getJSONObject(0).getString("state_code");
-                                country = result.getJSONArray("belongs_to").getJSONObject(0).getString("countrey_code");
-                            }
-                        }
+                        country = "";/**
+                         if (result.getJSONArray("belongs_to").getJSONObject(0).getString("location_type") != null && result.getJSONArray("belongs_to").getJSONObject(0).getString("location_type").equals("Address")) {
+                         address = result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_1");
+                         if (result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_2") != null) {
+                         address += ", " + result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_2");
+                         city = result.getJSONArray("belongs_to").getJSONObject(0).getString("city");
+                         zip = result.getJSONArray("belongs_to").getJSONObject(0).getString("postal_code");
+                         state = result.getJSONArray("belongs_to").getJSONObject(0).getString("state_code");
+                         country = result.getJSONArray("belongs_to").getJSONObject(0).getString("countrey_code");
+                         }
+                         }**/
+                        Log.e("TEST","FOUND: " + name);
                         PopulateInfo(db, phonenumber, name, address, city, zip, state, country);
                     }
                 } catch (org.json.JSONException e) {

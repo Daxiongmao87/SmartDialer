@@ -161,7 +161,7 @@ public class ReverseLookup extends Service
                     String zip = "";
                     String state = "";
                     String country = "";
-
+                    /**
                     if(result.get("is_commercial").equals("true")) 
                     {
 
@@ -181,7 +181,7 @@ public class ReverseLookup extends Service
                             }
                         }
                     }
-
+                     **/
                     Log.e("TESTING","TEST3: POPULATING INFO");
                     PopulateInfo(context,phonenumber,name,address,city,zip,state,country);
                 }

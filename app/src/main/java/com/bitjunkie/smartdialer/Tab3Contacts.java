@@ -2,41 +2,26 @@ package com.bitjunkie.smartdialer;
 
 
 import android.Manifest;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.provider.CallLog;
 import android.provider.ContactsContract;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
-import org.json.JSONObject;
-
-import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Date;
-
-import static android.R.attr.id;
-import static android.text.InputType.TYPE_CLASS_PHONE;
 
 /**
  *
@@ -90,6 +75,16 @@ public class Tab3Contacts extends Fragment{
         contactItems = new ArrayList<>();
         contactIDs = new ArrayList<>();
         getContactDetails();
+        FloatingActionButton addContactButton = (FloatingActionButton) rootView.findViewById(R.id.fbAddContact);
+        addContactButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), AddEditContactActivity.class);
+                intent.putExtra("type","add");
+                startActivity(intent);
+
+            }
+        });
         return rootView;
     }
     //Some permissions variables
@@ -120,25 +115,48 @@ public class Tab3Contacts extends Fragment{
         }
         StringBuffer sb = new StringBuffer();
         Cursor managedCursor = getActivity().getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,null,null,null,ContactsContract.Contacts.DISPLAY_NAME + " DESC");
-        int nameColumn = managedCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
-        int photoUriColumn = managedCursor.getColumnIndex(ContactsContract.Contacts.PHOTO_THUMBNAIL_URI);
-        int idColumn = managedCursor.getColumnIndex(ContactsContract.Contacts._ID);
-        while (managedCursor.moveToNext()) {
-            String name = managedCursor.getString(nameColumn);
-            String id = managedCursor.getString(idColumn);
-            Cursor managedCursor2 = getActivity().getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID+ " = ?", new String[]{id}, null);
-            String number = "";
-            if (managedCursor2.moveToFirst()) {
-                int numberColumn = managedCursor2.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
-                number = managedCursor2.getString(numberColumn);
-            }
+        if(managedCursor != null) {
+            int nameColumn = managedCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+            int photoUriColumn = managedCursor.getColumnIndex(ContactsContract.Contacts.PHOTO_THUMBNAIL_URI);
+            int idColumn = managedCursor.getColumnIndex(ContactsContract.Contacts._ID);
+            while (managedCursor.moveToNext()) {
+                String name = managedCursor.getString(nameColumn);
+                String id = managedCursor.getString(idColumn);
+                Cursor managedCursor2 = getActivity().getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id}, null);
+                String number = "";
+                if (managedCursor2 != null) {
+                    if (managedCursor2.moveToFirst()) {
+                        int numberColumn = managedCursor2.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+                        number = managedCursor2.getString(numberColumn);
+                    }
+                }
+                managedCursor2 = getActivity().getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
+                        ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?", new String[]{id}, null);
+                String email = "";
+                if (managedCursor2 != null) {
+                    if (managedCursor2.moveToFirst()) {
+                        int emailColumn = managedCursor2.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS);
+                        email = managedCursor2.getString(emailColumn);
+                    }
+                }
+                managedCursor2 = getActivity().getContentResolver().query(ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_URI, null,
+                        ContactsContract.CommonDataKinds.StructuredPostal.CONTACT_ID + " = ?", new String[]{id}, null);
+                String address = "";
+                if (managedCursor2 != null) {
+                    if (managedCursor2.moveToFirst()) {
+                        int addressColumn = managedCursor2.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.FORMATTED_ADDRESS);
+                        address = managedCursor2.getString(addressColumn);
+                    }
+                    managedCursor2.close();
+                }
 
-            String photoUri = managedCursor.getString(photoUriColumn);
-            createContactItem(number,name,photoUri);
-            managedCursor2.close();
+                String photoUri = managedCursor.getString(photoUriColumn);
+                createContactItem(number, name, photoUri, email, address, id);
+
+            }
+            managedCursor.close();
         }
-        managedCursor.close();
     }
 
     /**
@@ -147,7 +165,7 @@ public class Tab3Contacts extends Fragment{
      * @param name - Name to display
      * @param photoURI - Photo URI to display image
      */
-    public void createContactItem(String phNumber, String name, String photoURI){
+    public void createContactItem(String phNumber, String name, String photoURI, String email, String address, String id){
         final String number = phNumber;
         String contactName = name;
         LinearLayout linBase = new LinearLayout(getActivity());
@@ -160,7 +178,6 @@ public class Tab3Contacts extends Fragment{
         }
         linBase.addView(imgPhoto);
         linBase.addView(txtName);
-
         linBase.setOrientation(LinearLayout.HORIZONTAL);
 
         LinearLayout.LayoutParams loparams = (LinearLayout.LayoutParams) imgPhoto.getLayoutParams();
@@ -201,23 +218,25 @@ public class Tab3Contacts extends Fragment{
                 }
             }
         });
-        linBase.setOnClickListener(new View.OnClickListener() {
+        final String passName = name;
+        final String passPhoto= photoURI;
+        final String passNumber = phNumber;
+        final String passEmail = email;
+        final String passAddress = address;
+        final String passId = id;
+        linBase.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
-                //TabHost host = (TabHost) getActivity().findViewById(android.R.id.tabhost);
-                //host.setCurrentTab(0);
-                String permission = "android.permission.CALL_PHONE";
-
-                int res = getActivity().getApplicationContext().checkCallingOrSelfPermission(permission);
-                if (res == PackageManager.PERMISSION_GRANTED) {
-                    startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+number.trim())));
-                }
-                else {
-                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CALL_PHONE},MY_PERMISSION_REQUEST_CALL_PHONE);
-                    if (res == PackageManager.PERMISSION_GRANTED) {
-                        startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+number.trim())));
-                    }
-                }
+            public boolean onLongClick(View v) {
+                Intent intent = new Intent(getActivity(), AddEditContactActivity.class);
+                intent.putExtra("type","edit");
+                intent.putExtra("id",passId);
+                intent.putExtra("name",passName);
+                intent.putExtra("photoURI",passPhoto);
+                intent.putExtra("number",passNumber);
+                intent.putExtra("email",passEmail);
+                intent.putExtra("address",passAddress);
+                startActivity(intent);
+                return false;
             }
         });
     }
@@ -246,6 +265,7 @@ public class Tab3Contacts extends Fragment{
     @Override
     public void onResume() {
         super.onResume();
+        getContactDetails();
 
     }
     /**
@@ -257,4 +277,5 @@ public class Tab3Contacts extends Fragment{
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
         return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
+
 }

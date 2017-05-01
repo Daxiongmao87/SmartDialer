@@ -3,9 +3,11 @@ package com.bitjunkie.smartdialer;
 
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -40,6 +42,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 
+import org.json.JSONObject;
+
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import static android.R.attr.name;
@@ -194,26 +199,27 @@ public class Tab1Dialer extends Fragment implements View.OnClickListener{
         ContentResolver cr = getActivity().getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
                 null, null, null, null);
-        Cursor cur2 = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                null, null, null, null);
         if(cur.getCount() > 0) {
             String name = "";
             String number = "";
             cur.moveToFirst();
-            cur2.moveToFirst();
-            while (!cur.isAfterLast() && !cur2.isAfterLast()) {
+            while (!cur.isAfterLast()) {
                 if (cur.getInt(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
-                    name = cur.getString(cur.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME));
+                    name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+                    Cursor cur2 = getActivity().getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID+ " = ?", new String[]{id}, null);
+                    cur2.moveToFirst();
                     number = cur2.getString(cur2.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                     nameList.add(name + " " + number);
                     numberList.add(number);
+                    cur2.close();
                 }
                 cur.moveToNext();
-                cur2.moveToNext();
             }
         }
         cur.close();
-        cur2.close();
+
         DatabaseOperator dbo = new DatabaseOperator(getActivity());
         SQLiteDatabase db = dbo.getWritableDatabase();
         cur = db.rawQuery("select * from LISTEDNUMBERS",null);
@@ -342,6 +348,7 @@ public class Tab1Dialer extends Fragment implements View.OnClickListener{
 
                     phoneNo = phoneNo.substring(0,pos) + "3" + phoneNo.substring(pos,phoneNo.length());
                     edtPhoneNo.setText(phoneNo);
+                    edtPhoneNo.setSelection(pos+1);
                     break;
                 case R.id.btnFour:
 
@@ -385,6 +392,11 @@ public class Tab1Dialer extends Fragment implements View.OnClickListener{
                     if(phoneNo.trim().equals(""))
                         Toast.makeText(getActivity().getApplicationContext(),"Enter some digits", Toast.LENGTH_SHORT).show();
                     else if(checkCallPermission()){
+                        DatabaseOperator dbo = new DatabaseOperator(getActivity());
+                        SQLiteDatabase db = dbo.getWritableDatabase();
+                        Lookup lu = new Lookup(db,getActivity(),phoneNo);
+                        lu.execute();
+                        Log.e("TEST","CHECKING NUMBER");
                         startActivity(new Intent(Intent.ACTION_CALL,Uri.parse("tel:"+phoneNo.trim())));
                     }
                     else if(checkCallPermission()==false){
@@ -415,7 +427,107 @@ public class Tab1Dialer extends Fragment implements View.OnClickListener{
         }
 
     }
+    class Lookup extends AsyncTask<String, Integer, JSONObject> {
+        private Context context;
+        private String phonenumber;
+        SQLiteDatabase db;
+        public Lookup(SQLiteDatabase dbase, Context c, String pn) {
+            context = c;
+            phonenumber = pn;
+            db = dbase;
+        }
 
+        /**
+         *  doInBackground runs the code in the background (off the main
+         *  thread).  Specifically, using the API key, the method sends a
+         *  web request to whitepages.com with the phone number and retrieves
+         *  a JSONfile which later is parsed to our needs
+         * @param params - No params used
+         * @return returns the JSONObject retrieved from the website
+         */
+        protected JSONObject doInBackground(String... params){
+            Log.e("TEST","LOOKING UP NuMBER" + phonenumber);
+            if(phonenumber !=null) {
+                try {
+                    String key = "d406a59b6c444b669f42f21d92306923";
+                    String url = "https://proapi.whitepages.com/3.0/phone.json?api_key=" + key + "&phone=" + URLEncoder.encode(phonenumber,"UTF-8").toString();
+                    JSONParser jsonParser = new JSONParser();
+                    JSONObject payload = jsonParser.getJSONFromUrl(url, null);
+                    return payload;
+                }
+                catch (java.io.UnsupportedEncodingException e) {
+                    Log.e("URL","Encoding Error: " + e.toString());
+                }
+            }
+            return null;
+        }
 
+        /**
+         * Parses the data using the JSONParser class.  If the number
+         * is not from a business, the info is not used.  We decided
+         * this for ethical reasons.
+         * @param result - the JSONObject that was retrieved from the
+         *               lookup request (whitepages)
+         */
+        protected void onPostExecute(JSONObject result) {
+            String name = "";
+            String address = "";
+            String city = "";
+            String zip = "";
+            String state = "";
+            String country = "";
+            Log.e("TEST","Seeing whats in data");
+            try {
+                if(result != null) {
+                    Log.e("TEST","found something");
+                    name = result.getJSONArray("belongs_to").getJSONObject(0).getString("name");
+                    address = "";
+                    city = "";
+                    zip = "";
+                    state = "";
+                    country = "";/**
+                    if (result.getJSONArray("belongs_to").getJSONObject(0).getString("location_type") != null && result.getJSONArray("belongs_to").getJSONObject(0).getString("location_type").equals("Address")) {
+                        address = result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_1");
+                        if (result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_2") != null) {
+                            address += ", " + result.getJSONArray("belongs_to").getJSONObject(0).getString("street_line_2");
+                            city = result.getJSONArray("belongs_to").getJSONObject(0).getString("city");
+                            zip = result.getJSONArray("belongs_to").getJSONObject(0).getString("postal_code");
+                            state = result.getJSONArray("belongs_to").getJSONObject(0).getString("state_code");
+                            country = result.getJSONArray("belongs_to").getJSONObject(0).getString("countrey_code");
+                        }
+                    }**/
+                    Log.e("TEST","FOUND NUMBER: " + name);
+                    PopulateInfo(db, phonenumber, name, address, city, zip, state, country);
+                }
+            } catch (org.json.JSONException e) {
+                Log.e("JSON", "JSON Error: " + e.toString());
+            }
+        }
+    }
+    /**
+     * PopulateInfo populates the ListedNumbers database with our newfound information
+     * to be used in the call log
+     * @param db - SQLitedatabase for ListedNumbers
+     * @param number - phone number
+     * @param name - retrieved name
+     * @param address - retrieved address
+     * @param city - retrieved city
+     * @param zip - retrieved zipcode
+     * @param state - retrieved state
+     * @param country - retrieved country
+     */
+    public void PopulateInfo(SQLiteDatabase db, String number,String name, String address, String city, String zip, String state, String country){
+
+        ContentValues values = new ContentValues();
+        values.put("number",number);
+        values.put("name",name);
+        values.put("address",address);
+        values.put("city",city);
+        values.put("zip",zip);
+        values.put("state",state);
+        values.put("country",country);
+        db.insert("LISTEDNUMBERS",null,values);
+
+    }
 }
 
